@@ -51,6 +51,12 @@ def test_release_validates_before_publishing_and_uploads_all_assets():
     assert '--clobber' in text
 
 
+def test_release_keeps_validation_worktree_clean():
+    text = _text('release.yml')
+    assert "PYTHONDONTWRITEBYTECODE: '1'" in text
+    assert 'python -m pytest -q -p no:cacheprovider' in text
+
+
 def test_project_distribution_is_versioned():
     build_script = (ROOT / "scripts" / "build_distributions.py").read_text(encoding="utf-8")
     assert 'f"{project_id}-project-{version}.zip"' in build_script
