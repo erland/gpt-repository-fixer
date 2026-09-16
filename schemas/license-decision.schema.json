@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/license-decision.schema.json",
+  "title": "Repository Fixer License Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_type", "finding_id", "required", "questions"],
+  "properties": {
+    "decision_type": {"const": "license"},
+    "finding_id": {"type": "string", "pattern": "^RF-LICENSE-[0-9]{3}$"},
+    "required": {"const": true},
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "required", "guidance"],
+        "properties": {
+          "id": {"enum": ["license_type", "copyright_holder", "copyright_year"]},
+          "label": {"type": "string", "minLength": 1},
+          "required": {"type": "boolean"},
+          "guidance": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

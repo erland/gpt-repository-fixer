@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-step-verification.schema.json",
+  "title": "Repository Fixer step verification",
+  "type": "object",
+  "required": ["step_id", "status", "required_checks", "checks", "changed_paths", "deleted_paths", "correction_required"],
+  "properties": {
+    "step_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["verified", "failing", "not-verified"]},
+    "required_checks": {
+      "type": "array",
+      "items": {"enum": ["diff-review", "syntax-config", "build", "tests", "docs-consistency", "deleted-references"]},
+      "uniqueItems": true
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status", "summary"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "status": {"enum": ["verified", "failing", "not-verified"]},
+          "summary": {"type": "string", "minLength": 1},
+          "paths": {"type": "array", "items": {"type": "string"}},
+          "details": {"type": "array", "items": {"type": "string"}},
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["deleted_path", "referenced_from"],
+              "properties": {
+                "deleted_path": {"type": "string"},
+                "referenced_from": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "changed_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "deleted_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "correction_required": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

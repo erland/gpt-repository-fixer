@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GPT Project Status",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project",
+    "plan",
+    "progress",
+    "state",
+    "next_step",
+    "resume"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "required": [
+        "path",
+        "total_steps"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "total_steps": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "progress": {
+      "type": "object",
+      "required": [
+        "current_step",
+        "last_completed_step",
+        "completed_steps"
+      ],
+      "properties": {
+        "current_phase": {
+          "type": "string"
+        },
+        "current_step": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "last_completed_step": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_steps": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "uniqueItems": true
+        },
+        "skipped_steps": {
+          "type": "array"
+        },
+        "inserted_steps": {
+          "type": "array"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "required": [
+        "overall",
+        "blocking_issues",
+        "warnings"
+      ],
+      "properties": {
+        "overall": {
+          "enum": [
+            "pass",
+            "warning",
+            "blocked",
+            "failed"
+          ]
+        },
+        "blocking_issues": {
+          "type": "array"
+        },
+        "warnings": {
+          "type": "array"
+        }
+      }
+    },
+    "next_step": {
+      "type": "object",
+      "required": [
+        "recommended",
+        "title",
+        "reason"
+      ],
+      "properties": {
+        "recommended": {
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "resume": {
+      "type": "object",
+      "required": [
+        "supported",
+        "required_files"
+      ],
+      "properties": {
+        "supported": {
+          "type": "boolean"
+        },
+        "required_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "human_readable_status": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

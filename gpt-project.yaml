@@ -1,0 +1,76 @@
+schema_version: 1
+project:
+  id: repository-fixer
+  name: Repository Fixer
+  language: sv
+  description: >-
+    Analyserar ett källkodsrepository som ZIP eller GitHub-repository, producerar
+    en evidensbaserad hälsorapport och en stegvis åtgärdsplan och kan därefter
+    hjälpa användaren genomföra godkända korrigeringar kontrollerat.
+analysis:
+  profile: zip_first_advanced
+  source: user-defined-repository-health-workflow
+instructions:
+  canonical: src/instructions/system.md
+  core_contract:
+    enabled: true
+    required_markers:
+      - "Analys före ändring"
+      - "Evidens före antaganden"
+      - "Minimum necessary change"
+      - "Mänskligt beslut när det behövs"
+      - "Verifiera efter ändring"
+    required_runtime_dependencies: []
+    max_required_file_hops: 1
+    knowledge_may_not_be_required_for_core_behavior: true
+structure:
+  runtime_policy:
+    path: src/runtime-policy
+  conversation_starters:
+    path: src/conversation-starters
+  schemas:
+    path: schemas
+  scripts:
+    path: scripts
+  templates:
+    path: templates
+knowledge_architecture:
+  canonical_root: knowledge
+  custom_gpt:
+    priority: []
+runtime:
+  primary: none
+  chat_zip:
+    enabled: true
+    entrypoint: START-HERE.md
+    start_here_template: templates/START-HERE.chat.md.tpl
+  custom_gpt:
+    enabled: true
+    instruction:
+      mode: identical
+      max_characters: 8000
+    knowledge:
+      max_files: 20
+      strategy: identical
+    templates:
+      capabilities: templates/capabilities.md.tpl
+      readme: templates/README.custom-gpt.md.tpl
+      compatibility: templates/COMPATIBILITY.md.tpl
+development:
+  plan: docs/development-plan.md
+  status: project-status.yaml
+testing:
+  manifest: tests/test-manifest.yaml
+  manifest_schema: schemas/test-manifest.schema.json
+  eval_case_schema: schemas/eval-case.schema.json
+ci:
+  enabled: true
+  default: true
+  workflow: .github/workflows/ci.yml
+release:
+  github:
+    enabled: true
+    default: true
+    optional: false
+    version_source: github_release_tag
+    workflow: .github/workflows/release.yml

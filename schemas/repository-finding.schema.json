@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-finding.schema.json",
+  "title": "Repository Fixer Finding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "area",
+    "classification",
+    "title",
+    "summary",
+    "evidence",
+    "confidence",
+    "recommended_action"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^RF-[A-Z0-9][A-Z0-9-]*-[0-9]{3}$"
+    },
+    "area": {
+      "enum": [
+        "inventory",
+        "readme",
+        "documentation",
+        "license",
+        "repository-hygiene",
+        "build",
+        "tests",
+        "github-actions",
+        "versions",
+        "other"
+      ]
+    },
+    "classification": {
+      "enum": ["must-fix", "recommended", "consider", "passed"]
+    },
+    "title": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "evidence": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/evidence"}
+    },
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "recommended_action": {"type": ["string", "null"]},
+    "decision_required": {"type": "boolean", "default": false},
+    "decision_reason": {"type": ["string", "null"]},
+    "verification": {"type": ["string", "null"]},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"classification": {"const": "must-fix"}},
+        "required": ["classification"]
+      },
+      "then": {
+        "properties": {"evidence": {"minItems": 1}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"classification": {"const": "recommended"}},
+        "required": ["classification"]
+      },
+      "then": {
+        "properties": {"evidence": {"minItems": 1}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"classification": {"const": "passed"}},
+        "required": ["classification"]
+      },
+      "then": {
+        "properties": {
+          "recommended_action": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"decision_required": {"const": true}},
+        "required": ["decision_required"]
+      },
+      "then": {
+        "required": ["decision_reason"],
+        "properties": {
+          "decision_reason": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "observation"],
+      "properties": {
+        "kind": {
+          "enum": ["file", "configuration", "command", "runtime", "cross-file", "absence"]
+        },
+        "path": {"type": ["string", "null"]},
+        "line_start": {"type": ["integer", "null"], "minimum": 1},
+        "line_end": {"type": ["integer", "null"], "minimum": 1},
+        "observation": {"type": "string", "minLength": 1},
+        "expected": {"type": ["string", "null"]},
+        "actual": {"type": ["string", "null"]},
+        "related_paths": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

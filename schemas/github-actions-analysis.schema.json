@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/github-actions-analysis.schema.json",
+  "title": "Repository Fixer GitHub Actions Analysis",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["workflows", "coverage", "findings"],
+  "properties": {
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "triggers", "jobs"],
+        "properties": {
+          "path": {"type": "string"},
+          "triggers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "jobs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["build", "tests"],
+      "properties": {
+        "build": {"$ref": "#/$defs/coverageItems"},
+        "tests": {"$ref": "#/$defs/coverageItems"}
+      }
+    },
+    "findings": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {
+    "coverageItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["component", "expected_command", "covered", "matches"],
+        "properties": {
+          "component": {"type": "string"},
+          "expected_command": {"type": "string"},
+          "covered": {"type": "boolean"},
+          "matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["workflow", "job", "working_directory", "run"],
+              "properties": {
+                "workflow": {"type": "string"},
+                "job": {"type": "string"},
+                "working_directory": {"type": "string"},
+                "run": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-inventory.schema.json",
+  "title": "Repository Fixer Inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["repository", "project_types", "technologies", "components", "evidence", "uncertainties", "confidence"],
+  "properties": {
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_markers"],
+      "properties": {
+        "root_markers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "default_branch": {"type": ["string", "null"]},
+        "source_mode": {"enum": ["zip", "github", "local", "unknown"]}
+      }
+    },
+    "project_types": {
+      "type": "array",
+      "items": {"enum": ["frontend", "backend", "fullstack", "monorepo", "library", "documentation", "cli", "infrastructure", "unknown"]},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "technologies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["languages", "frameworks", "build_tools", "package_managers", "container", "ci"],
+      "properties": {
+        "languages": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "frameworks": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "build_tools": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "package_managers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "container": {"type": "array", "items": {"enum": ["docker", "docker-compose"]}, "uniqueItems": true},
+        "ci": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "role"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "role": {"type": "string", "minLength": 1},
+          "build_file": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "path", "signal"],
+        "properties": {
+          "claim": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "signal": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "uncertainties": {"type": "array", "items": {"type": "string"}},
+    "conflicts": {"type": "array", "items": {"type": "string"}},
+    "confidence": {"enum": ["high", "medium", "low"]}
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GPT Behavioral Eval Case",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "criticality",
+    "input",
+    "expected"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "criticality": {
+      "enum": [
+        "critical",
+        "important",
+        "optional"
+      ]
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "simple",
+          "standard",
+          "zip_first_advanced",
+          "workflow_research_heavy"
+        ]
+      }
+    },
+    "input": {
+      "type": "object"
+    },
+    "expected": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scoring": {
+      "type": "object",
+      "properties": {
+        "pass_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  }
+}
