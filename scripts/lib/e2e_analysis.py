@@ -14,6 +14,7 @@ from .analysis_report import build_report_model, render_analysis_report
 from .fix_plan import build_fix_plan_model, render_fix_plan
 
 TEXT_SUFFIXES = {'.md', '.json', '.xml', '.yaml', '.yml', '.toml', '.properties', '.txt', '.js', '.jsx', '.ts', '.tsx', '.java', '.py', '.go', '.rs', '.gradle', '.kts', ''}
+HYGIENE_SUFFIXES = {'.log', '.tmp', '.temp', '.swp', '.swo', '.pyc', '.pyo', '.patch', '.diff', '.zip'}
 
 
 def read_repository_files(root: Path | str) -> dict[str, str]:
@@ -23,12 +24,17 @@ def read_repository_files(root: Path | str) -> dict[str, str]:
         if not path.is_file() or '.repository-fixer' in path.parts:
             continue
         rel = path.relative_to(root).as_posix()
-        if path.suffix.lower() not in TEXT_SUFFIXES and path.name not in {'Dockerfile', '.gitignore', 'LICENSE', 'LICENCE', 'Makefile'}:
+        if (
+            path.suffix.lower() not in TEXT_SUFFIXES
+            and path.suffix.lower() not in HYGIENE_SUFFIXES
+            and path.name not in {'Dockerfile', '.gitignore', 'LICENSE', 'LICENCE', 'Makefile', '.DS_Store', 'Thumbs.db', '.coverage'}
+        ):
             continue
         try:
             files[rel] = path.read_text(encoding='utf-8')
         except UnicodeDecodeError:
-            continue
+            # Hygiene analysis still needs the path even when the artifact is binary.
+            files[rel] = ''
     return files
 
 
