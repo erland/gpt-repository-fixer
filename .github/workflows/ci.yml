@@ -43,7 +43,7 @@ jobs:
         run: python scripts/validate_release_readiness.py --project-root . --build-root build
 
       - name: Upload CI distributions
-        if: always()
+        if: ${{ always() && hashFiles('dist/*.zip') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: repository-fixer-ci-distributions
