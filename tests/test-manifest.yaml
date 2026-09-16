@@ -1,0 +1,130 @@
+schema_version: 1
+project: repository-fixer
+status: active
+suites:
+  - id: canonical-contract
+    type: pytest
+    path: tests/test_contract.py
+    purpose: >-
+      Säkerställer att kärnkontraktet innehåller analys-före-fix, restriktiv
+      frågepolicy, minimum necessary change, licensbeslut och GitHub PR-livscykel.
+  - id: repository-inventory
+    type: pytest
+    path: tests/test_inventory.py
+    purpose: >-
+      Verifierar inventory-schemat och konservativ första-pass-detektion för
+      vanliga stacksignaler, monorepo, konflikter och okänd teknik.
+  - id: repository-findings
+    type: pytest
+    path: tests/test_findings.py
+    purpose: >-
+      Verifierar fyndschema, evidenskrav, rapportklassificering, godkända kontroller
+      och explicita användarbeslut.
+  - id: repository-readme
+    type: pytest
+    path: tests/test_readme_analysis.py
+    purpose: >-
+      Verifierar README-analys för package manager, Java-version, lokal port,
+      saknade körinstruktioner, testdokumentation och godkända kontroller.
+  - id: repository-markdown-documentation
+    type: pytest
+    path: tests/test_markdown_analysis.py
+    purpose: >-
+      Verifierar konsistenskontroll för övrig Markdown mot scripts, Java-version,
+      portar, filreferenser, miljövariabler och API-routes med konservativ confidence.
+  - id: repository-license
+    type: pytest
+    path: tests/test_license_analysis.py
+    purpose: >-
+      Verifierar konservativ licensidentifiering, README/LICENSE-konflikter,
+      placeholders, okänd licenstext och obligatoriska användarbeslut.
+  - id: repository-hygiene
+    type: pytest
+    path: tests/test_hygiene_analysis.py
+    purpose: >-
+      Verifierar konservativ hygiene-analys för genererade artefakter, .gitignore,
+      historiska arbetsfiler, ZIP/patch-filer och package-manager-lockkonflikter.
+  - id: repository-build-test
+    type: pytest
+    path: tests/test_build_test_analysis.py
+    purpose: >-
+      Verifierar härledning av build/test-kommandon, wrapper-preferens, runtime-
+      konflikter samt strikt åtskillnad mellan verified, failing och not-verified.
+  - id: repository-github-actions
+    type: pytest
+    path: tests/test_github_actions_analysis.py
+    purpose: >-
+      Verifierar att GitHub Actions bedöms efter faktisk build/test-täckning,
+      triggers, runtime/package manager, lokala filreferenser, dubletter och
+      separat verifierad action-versionering.
+
+  - id: repository-analysis-report
+    type: pytest
+    path: tests/test_analysis_report.py
+    purpose: >-
+      Verifierar rapportmodell och Markdown-rendering, separering av öppna fynd och
+      godkända kontroller samt korrekt redovisning av not-verified och osäkerheter.
+  - id: repository-fix-plan
+    type: pytest
+    path: tests/test_fix_plan.py
+    purpose: >-
+      Verifierar prioritering, naturlig gruppering, prompt-storlek, beslutspunkter,
+      beroenden och Markdown-rendering för repository-fix-plan.md.
+  - id: repository-step-control
+    type: pytest
+    path: tests/test_step_control.py
+    purpose: >-
+      Verifierar state-maskinen för nästa genomförbara steg, beroenden, beslut,
+      gör/hoppa över/detaljer/ändra, misslyckad exekvering och portabel progress.
+  - id: repository-zip-workflow
+    type: pytest
+    path: tests/test_zip_workflow.py
+    purpose: >-
+      Verifierar säker ZIP-extraktion, bevarande av wrapper/struktur/rättigheter,
+      portabel .repository-fixer-status, komplett ompaketering och ren slutleverans.
+  - id: repository-github-read-workflow
+    type: pytest
+    path: tests/test_github_read_workflow.py
+    purpose: >-
+      Verifierar GitHub URL-normalisering, default branch/analyserad ref, säker
+      materialisering, semantisk paritet med ZIP-inventory, PR-signaler och read-only fallback.
+  - id: repository-github-write-workflow
+    type: pytest
+    path: tests/test_github_write_workflow.py
+    purpose: >-
+      Verifierar säker branch-/PR-livscykel, PR-statuskontroll före skrivning,
+      ny PR efter merge, stopp vid stängd PR samt en naturlig commit per plansteg.
+  - id: repository-step-verification
+    type: pytest
+    path: tests/test_step_verification.py
+    purpose: >-
+      Verifierar diff-scope, syntax/konfiguration, kvarvarande referenser, relevanta
+      per-stegskontroller och att failing blockerar slutförande medan not-verified
+      redovisas explicit.
+  - id: repository-final-report
+    type: pytest
+    path: tests/test_final_report.py
+    purpose: >-
+      Verifierar att slutrapporten bygger på en separat färsk analys, jämför ursprungliga
+      fynd mot aktuell observation och redovisar lösta, hoppade, kvarstående och nya fynd.
+  - id: repository-e2e-scenarios
+    type: pytest
+    path: tests/test_e2e_scenarios.py
+    purpose: >-
+      Verifierar hela analys- och åtgärdskedjan på realistiska deterministiska
+      testrepositories samt fler-stegs ZIP- och GitHub/PR-livscykler.
+  - id: repository-custom-gpt-distribution
+    type: pytest
+    path: tests/test_custom_gpt_distribution.py
+    purpose: >-
+      Verifierar fristående Custom GPT-paket, instruktionens storlek och kärnmarkörer,
+      komplett Knowledge-paritet, explicit capability-profil och dokumenterad GitHub fallback.
+
+
+  - id: repository-release-readiness
+    type: pytest
+    path: tests/test_release_readiness.py
+    purpose: >-
+      Verifierar byte-identisk canonical instruktion och Knowledge-paritet mellan
+      Chat ZIP/Custom GPT, dokumenterade plattformsbegränsningar, rent canonical
+      källträd samt synkroniserad README/projektstatus inför release.

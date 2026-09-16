@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install validation dependencies
+        run: python -m pip install --upgrade pyyaml jsonschema pytest
+
+      - name: Resolve version from GitHub Release tag
+        id: version
+        shell: bash
+        run: |
+          TAG='${{ github.event.release.tag_name }}'
+          VERSION="${TAG#v}"
+          if [ -z "$VERSION" ]; then
+            echo 'Release tag produced an empty version.' >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Run deterministic and E2E tests
+        run: python -m pytest -q
+
+      - name: Lint canonical GPT project
+        run: python scripts/lint_gpt_project.py --project-root .
+
+      - name: Validate project hygiene
+        run: python scripts/project_hygiene.py --project-root . --mode final
+
+      - name: Build release distributions
+        run: >-
+          python scripts/build_distributions.py
+          --project-root .
+          --version '${{ steps.version.outputs.version }}'
+          --targets project,chat,custom-gpt
+
+      - name: Validate built distributions
+        run: python scripts/validate_distributions.py --project-root .
+
+      - name: Validate runtime parity and release readiness
+        run: python scripts/validate_release_readiness.py --project-root . --build-root build
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release upload '${{ github.event.release.tag_name }}' \
+            dist/*.zip \
+            dist/SHA256SUMS.txt \
+            dist/DELIVERY-MANIFEST.json \
+            --clobber

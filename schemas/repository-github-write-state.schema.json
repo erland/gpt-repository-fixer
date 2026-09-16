@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-github-write-state.schema.json",
+  "title": "Repository Fixer GitHub write state",
+  "type": "object",
+  "required": ["repository", "default_branch", "active_branch", "active_pr", "pr_sequence", "commits", "history"],
+  "properties": {
+    "repository": {
+      "type": "object",
+      "required": ["owner", "name", "url"],
+      "properties": {
+        "owner": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "default_branch": {"type": "string", "minLength": 1},
+    "base_sha": {"type": ["string", "null"]},
+    "active_branch": {"type": ["string", "null"]},
+    "active_pr": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["number", "state", "head_ref", "base_ref"],
+          "properties": {
+            "number": {"type": "integer", "minimum": 1},
+            "state": {"enum": ["open", "merged", "closed"]},
+            "head_ref": {"type": "string", "minLength": 1},
+            "base_ref": {"type": "string", "minLength": 1},
+            "url": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "pr_sequence": {"type": "integer", "minimum": 0},
+    "commits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step_id", "sha", "message", "pr_number", "branch"],
+        "properties": {
+          "step_id": {"type": "string", "minLength": 1},
+          "sha": {"type": "string", "minLength": 1},
+          "message": {"type": "string", "minLength": 1},
+          "pr_number": {"type": "integer", "minimum": 1},
+          "branch": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {"type": "object", "required": ["sequence", "action"], "additionalProperties": true}
+    }
+  },
+  "additionalProperties": false
+}

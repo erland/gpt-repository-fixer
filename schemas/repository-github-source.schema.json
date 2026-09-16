@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-github-source.schema.json",
+  "title": "Repository Fixer GitHub source context",
+  "type": "object",
+  "required": ["mode", "repository", "default_branch", "analyzed_ref", "writable", "repository_fixer_pull_requests", "limitations"],
+  "properties": {
+    "mode": {"const": "github"},
+    "repository": {
+      "type": "object",
+      "required": ["owner", "name", "url"],
+      "properties": {
+        "owner": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "pattern": "^https://github\\.com/[^/]+/[^/]+$"}
+      },
+      "additionalProperties": false
+    },
+    "default_branch": {"type": "string", "minLength": 1},
+    "analyzed_ref": {"type": "string", "minLength": 1},
+    "commit_sha": {"type": ["string", "null"]},
+    "writable": {"type": ["boolean", "null"]},
+    "repository_fixer_pull_requests": {"type": "array", "items": {"type": "object"}},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "additionalProperties": false
+}

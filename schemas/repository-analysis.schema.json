@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-analysis.schema.json",
+  "title": "Repository Fixer Analysis Report Model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["repository_name", "inventory", "checked_areas", "findings", "build_test", "limitations", "recommended_next_step"],
+  "properties": {
+    "repository_name": {"type": "string", "minLength": 1},
+    "inventory": {"$ref": "repository-inventory.schema.json"},
+    "checked_areas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["area", "status"],
+        "properties": {
+          "area": {"type": "string", "minLength": 1},
+          "status": {"enum": ["checked", "partial", "not-applicable", "not-checked"]},
+          "note": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "findings": {"type": "array", "items": {"$ref": "repository-finding.schema.json"}},
+    "build_test": {"$ref": "build-test-verification.schema.json"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "recommended_next_step": {"type": "string", "minLength": 1}
+  }
+}

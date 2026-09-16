@@ -1,0 +1,56 @@
+schema_version: 1
+project:
+  id: repository-fixer
+  name: Repository Fixer
+plan:
+  path: docs/development-plan.md
+  total_steps: 24
+progress:
+  current_phase: stable-v1
+  current_step: 24
+  last_completed_step: 24
+  completed_steps:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  skipped_steps: []
+  inserted_steps: []
+state:
+  overall: pass
+  blocking_issues: []
+  warnings: []
+next_step:
+  recommended: null
+  title: Stabil v1 klar
+  reason: Alla 24 planerade steg är genomförda och v1.0.0 är redo för release.
+resume:
+  supported: true
+  required_files:
+  - gpt-project.yaml
+  - project-status.yaml
+  - docs/development-plan.md
+  - STATUS.md
+  - PROJECT.md
+  human_readable_status: Alla 24 utvecklingssteg är klara. Repository Fixer v1.0.0
+    är stabil och release-ready.

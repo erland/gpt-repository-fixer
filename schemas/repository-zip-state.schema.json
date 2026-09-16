@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-zip-state.schema.json",
+  "title": "Repository Fixer portable ZIP state",
+  "type": "object",
+  "required": ["schema_version", "mode", "metadata_dir", "artifacts", "structured"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "mode": {"const": "zip"},
+    "metadata_dir": {"const": ".repository-fixer"},
+    "artifacts": {
+      "type": "object",
+      "required": ["analysis", "plan", "progress"],
+      "properties": {
+        "analysis": {"const": "analysis.md"},
+        "plan": {"const": "plan.md"},
+        "progress": {"const": "progress.md"}
+      },
+      "additionalProperties": false
+    },
+    "structured": {
+      "type": "object",
+      "required": ["analysis", "plan", "progress"],
+      "properties": {
+        "analysis": {"type": ["string", "null"]},
+        "plan": {"type": ["string", "null"]},
+        "progress": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "repository_fingerprint": {"type": "string"},
+    "last_completed_step": {"type": ["string", "null"]},
+    "note": {"type": "string"}
+  },
+  "additionalProperties": true
+}

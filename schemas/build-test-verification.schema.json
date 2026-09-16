@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/build-test-verification.schema.json",
+  "title": "Repository Fixer build/test verification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["build", "tests", "runtime_mismatches", "findings"],
+  "properties": {
+    "build": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+    "tests": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+    "runtime_mismatches": {"type": "array", "items": {"type": "object"}},
+    "findings": {"type": "array", "items": {"$ref": "repository-finding.schema.json"}}
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["component", "command", "source", "kind", "status"],
+      "properties": {
+        "component": {"type": "string"},
+        "command": {"type": "string", "minLength": 1},
+        "source": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["node", "maven", "gradle", "python", "go", "rust"]},
+        "status": {"enum": ["verified", "failing", "not-verified"]},
+        "exit_code": {"type": "integer"},
+        "reason": {"type": "string"},
+        "summary": {"type": "string"}
+      }
+    }
+  }
+}

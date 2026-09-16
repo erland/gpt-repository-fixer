@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-progress.schema.json",
+  "title": "Repository Fixer progress",
+  "type": "object",
+  "required": ["repository_name", "source_finding_ids", "steps", "history"],
+  "properties": {
+    "repository_name": {"type": "string", "minLength": 1},
+    "source_finding_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "skip_reason", "blockers", "overrides", "decisions", "verification_status"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^STEP-[0-9]{2,}$"},
+          "status": {"enum": ["planned", "in-progress", "completed", "skipped", "blocked"]},
+          "skip_reason": {"type": ["string", "null"]},
+          "verification_status": {"enum": ["pending", "verified", "failing", "not-verified"]},
+          "overrides": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "message"],
+              "properties": {
+                "type": {"enum": ["dependency", "decision", "execution", "verification"]},
+                "related_id": {"type": "string"},
+                "message": {"type": "string", "minLength": 1}
+              },
+              "additionalProperties": false
+            }
+          },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["finding_id", "question", "status"],
+              "properties": {
+                "finding_id": {"type": "string", "minLength": 1},
+                "question": {"type": "string", "minLength": 1},
+                "status": {"enum": ["pending", "resolved"]},
+                "answer": {"type": "string", "minLength": 1}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["sequence", "action"],
+        "properties": {
+          "sequence": {"type": "integer", "minimum": 1},
+          "action": {"enum": ["initialized", "details", "modified", "skipped", "started", "completed", "failed", "decision-resolved"]},
+          "step_id": {"type": "string"},
+          "note": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

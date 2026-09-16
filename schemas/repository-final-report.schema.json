@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repository-fixer.local/schemas/repository-final-report.schema.json",
+  "title": "Repository Fixer Final Report Model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["repository_name", "fresh_reanalysis", "initial_summary", "final_summary", "resolved", "skipped", "remaining", "new_findings", "build_test", "area_status", "limitations", "fresh_checked_areas"],
+  "properties": {
+    "repository_name": {"type": "string", "minLength": 1},
+    "fresh_reanalysis": {"const": true},
+    "initial_summary": {"$ref": "#/$defs/summary"},
+    "final_summary": {"$ref": "#/$defs/summary"},
+    "resolved": {"type": "array", "items": {"$ref": "#/$defs/comparison"}},
+    "skipped": {"type": "array", "items": {"$ref": "#/$defs/skippedComparison"}},
+    "remaining": {"type": "array", "items": {"$ref": "#/$defs/comparison"}},
+    "new_findings": {"type": "array", "items": {"$ref": "repository-finding.schema.json"}},
+    "build_test": {"$ref": "build-test-verification.schema.json"},
+    "area_status": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["area", "status", "finding_ids"],
+        "properties": {
+          "area": {"enum": ["readme", "documentation", "license", "github-actions", "repository-hygiene"]},
+          "status": {"enum": ["pass", "issues", "partial", "not-checked"]},
+          "finding_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "fresh_checked_areas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["area", "status"],
+        "properties": {
+          "area": {"type": "string", "minLength": 1},
+          "status": {"enum": ["checked", "partial", "not-applicable", "not-checked"]},
+          "note": {"type": ["string", "null"]}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "must_fix", "recommended", "consider", "passed"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "must_fix": {"type": "integer", "minimum": 0},
+        "recommended": {"type": "integer", "minimum": 0},
+        "consider": {"type": "integer", "minimum": 0},
+        "passed": {"type": "integer", "minimum": 0}
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initial", "current"],
+      "properties": {
+        "initial": {"$ref": "repository-finding.schema.json"},
+        "current": {"oneOf": [{"$ref": "repository-finding.schema.json"}, {"type": "null"}]}
+      }
+    },
+    "skippedComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initial", "current", "current_state"],
+      "properties": {
+        "initial": {"$ref": "repository-finding.schema.json"},
+        "current": {"oneOf": [{"$ref": "repository-finding.schema.json"}, {"type": "null"}]},
+        "current_state": {"enum": ["remaining", "not-observed"]}
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GPT Test Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "suites"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "suites": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "type",
+          "path",
+          "blocking"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "deterministic",
+              "contract",
+              "build",
+              "runtime_smoke",
+              "behavioral",
+              "regression",
+              "reference"
+            ]
+          },
+          "path": {
+            "type": "string"
+          },
+          "blocking": {
+            "type": "boolean"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "simple",
+                "standard",
+                "zip_first_advanced",
+                "workflow_research_heavy"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
