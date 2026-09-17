@@ -20,7 +20,7 @@ Negativa fynd ska bygga på observerbar evidens i filer, konfiguration, scripts,
 
 ### Mänskligt beslut när det behövs
 
-Be användaren besluta när ändringen är juridisk, verksamhetsmässig, irreversibel, osäker eller tydligt preferensberoende, exempelvis licensval, copyright-innehavare, tveksam filborttagning eller större CI/releaseändring. Ställ inte frågor för sådant du kan avgöra säkert från repositoryt.
+Be användaren besluta när ändringen är juridisk, verksamhetsmässig, irreversibel, osäker eller preferensberoende, exempelvis licensval, copyright-innehavare, tveksam filborttagning eller större CI/releaseändring. Ställ inte frågor för sådant du kan avgöra säkert från repositoryt.
 
 ### Verifiera efter ändring
 
@@ -34,13 +34,13 @@ Börja en full analys med en konservativ inventering av rotfiler, byggmanifest, 
 
 En första inventering är inte samma sak som en full analys. Följ `analysis-completeness.md`.
 
-Analysera minst, när relevant: repositorystruktur/stack, README, övrig Markdown, LICENSE/licensreferenser, `.gitignore` och hygiene, temporära/genererade/överflödiga filer, lockfiler/package manager, build, tester, GitHub Actions, runtime-/verktygsversioner, Docker/Compose, konfiguration/miljövariabler, uppenbara checkade-in secrets, manifest/dependency-inkonsistenser, uppenbart döda scripts/config och releasekonfiguration.
+Analysera minst, när relevant: repositorystruktur/stack, README, övrig Markdown, LICENSE/licensreferenser, `.gitignore` och hygiene, temporära/genererade/överflödiga filer, lockfiler/package manager, build, tester, GitHub Actions, runtime-/verktygsversioner, Docker/Compose, konfiguration/miljövariabler, uppenbara checkade-in secrets, manifest/dependency-inkonsistenser, döda scripts/config och releasekonfiguration.
 
-En full analys får inte markeras komplett förrän varje relevant kontrollområde är `checked`, `not-applicable` eller tydligt `not-verified`. `partial` och `not-checked` betyder att analysen fortfarande är ofullständig. Begränsa aldrig den fullständiga fyndlistan till de viktigaste fyra eller fem fynden. Sammanfattningen får prioritera, men alla identifierade öppna fynd ska bevaras.
+En full analys får inte markeras komplett förrän varje relevant kontrollområde är `checked`, `not-applicable` eller tydligt `not-verified`. `partial` och `not-checked` betyder att analysen är ofullständig. Begränsa aldrig den fullständiga fyndlistan till de viktigaste fyra eller fem fynden. Sammanfattningen får prioritera, men alla identifierade öppna fynd ska bevaras.
 
-LICENSE-kontrollen ska alltid ge ett synligt resultat. Om varken licensfil eller licensreferens finns ska ett explicit **Överväg**-fynd skapas; du ska inte själv välja eller ersätta licens.
+LICENSE-kontrollen ska alltid ge ett synligt resultat. Om varken licensfil eller licensreferens finns ska ett explicit **Överväg**-fynd skapas; välj eller ersätt inte licens själv.
 
-Om full analys inte ryms i aktuell körning: bevara fynd och stabila ID:n, markera analysen ofullständig och ange återstående kontrollområden. Fortsätt därifrån i nästa analysomgång. Slutlig fix-plan skapas normalt först när analysen är komplett. Om användaren uttryckligen vill börja tidigare får planen märkas tydligt som preliminär.
+Om full analys inte ryms i aktuell körning: bevara fynd och stabila ID:n, markera analysen ofullständig och ange återstående kontrollområden. Fortsätt därifrån i nästa analysomgång. Slutlig fix-plan skapas normalt först när analysen är komplett. Om användaren vill börja tidigare får planen märkas preliminär.
 
 ## `repository-analysis.md`
 
@@ -57,7 +57,7 @@ Följ `finding-model.md`, `repository-finding.schema.json` och `analysis-report.
 
 ## `repository-fix-plan.md`
 
-Planen ska byggas från **samtliga öppna fynd** i den kompletta analysen. Prioritering påverkar ordning, inte om fynd tas med. Varje öppet fynd ska finnas i planens källfynd och i ett naturligt plansteg, eller uttryckligen redovisas som utanför scope med motivering. Dela stora grupper i små steg som normalt ryms i en användarprompt. Följ `fix-plan.md` och `repository-fix-plan.schema.json`.
+Planen ska byggas från **samtliga öppna fynd** i den kompletta analysen. Prioritering påverkar ordning, inte om fynd tas med. Varje öppet fynd ska finnas i planens källfynd och ett naturligt plansteg, eller redovisas som utanför scope med motivering. Dela stora grupper i små steg som normalt ryms i en användarprompt. Följ `fix-plan.md` och `repository-fix-plan.schema.json`.
 
 ## Fasmedvetet nästa steg
 
@@ -68,7 +68,7 @@ Tolka "Gör nästa steg" utifrån aktuell fas:
 3. plan finns → följ interaktiv stegkontroll,
 4. alla relevanta plansteg avslutade → gör/erbjud ny full analys och slutrapport.
 
-Hoppa inte från ofullständig analys direkt till implementation bara för att några fynd redan hittats.
+Hoppa inte från ofullständig analys direkt till implementation bara för att några fynd hittats.
 
 ## Interaktivt åtgärdsflöde
 
@@ -95,7 +95,7 @@ Skriv inte direkt till default branch som standard. Om skrivåtkomst saknas får
 
 ## Licenspolicy
 
-Om `LICENSE` saknas eller är inkonsekvent: analysera och skapa relevant fynd, men du ska inte själv välja eller ersätta licens. Ge neutrala alternativ och låt användaren bekräfta licens och copyright-innehavare.
+Om `LICENSE` saknas eller är inkonsekvent: analysera och skapa relevant fynd, men välj eller ersätt inte licens. Ge neutrala alternativ och låt användaren bekräfta licens och copyright-innehavare.
 
 ## Policy för borttagning av filer
 
