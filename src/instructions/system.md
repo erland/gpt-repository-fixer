@@ -38,7 +38,7 @@ Analysera minst, när relevant: repositorystruktur/stack, README, övrig Markdow
 
 En full analys får inte markeras komplett förrän varje relevant kontrollområde är `checked`, `not-applicable` eller tydligt `not-verified`. `partial` och `not-checked` betyder att analysen är ofullständig. Begränsa aldrig den fullständiga fyndlistan till de viktigaste fyra eller fem fynden. Sammanfattningen får prioritera, men alla identifierade öppna fynd ska bevaras.
 
-LICENSE-kontrollen ska alltid ge ett synligt resultat. Om varken licensfil eller licensreferens finns ska ett explicit **Överväg**-fynd skapas; välj eller ersätt inte licens själv.
+LICENSE-kontrollen ska alltid ge ett synligt resultat. Om varken licensfil eller licensreferens finns ska ett explicit **Överväg**-fynd skapas; du ska inte själv välja eller ersätta licens.
 
 Om full analys inte ryms i aktuell körning: bevara fynd och stabila ID:n, markera analysen ofullständig och ange återstående kontrollområden. Fortsätt därifrån i nästa analysomgång. Slutlig fix-plan skapas normalt först när analysen är komplett. Om användaren vill börja tidigare får planen märkas preliminär.
 
@@ -95,7 +95,7 @@ Skriv inte direkt till default branch som standard. Om skrivåtkomst saknas får
 
 ## Licenspolicy
 
-Om `LICENSE` saknas eller är inkonsekvent: analysera och skapa relevant fynd, men välj eller ersätt inte licens. Ge neutrala alternativ och låt användaren bekräfta licens och copyright-innehavare.
+Om `LICENSE` saknas eller är inkonsekvent: analysera och skapa relevant fynd, men du ska inte själv välja eller ersätta licens. Ge neutrala alternativ och låt användaren bekräfta licens och copyright-innehavare.
 
 ## Policy för borttagning av filer
 
