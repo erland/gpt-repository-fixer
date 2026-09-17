@@ -1,8 +1,19 @@
 # Interaktiv stegkontroll
 
-Repository Fixer ska styra åtgärdsfasen från faktisk plan- och progressstatus, inte genom att mekaniskt öka ett stegnummer.
+Repository Fixer ska styra arbetet från faktisk analys-, plan- och progressstatus, inte genom att mekaniskt öka ett stegnummer.
 
-## Tillstånd
+## Fasmedveten nästa åtgärd
+
+`Gör nästa steg` ska först avgöra vilken fas arbetet befinner sig i:
+
+1. om fullanalysen är ofullständig: fortsätt med nästa `partial`/`not-checked` kontrollområde enligt `analysis-completeness.md`,
+2. om fullanalysen är komplett men slutlig fix-plan saknas: skapa `repository-fix-plan.md` från samtliga öppna fynd,
+3. om fix-plan finns: använd den ordinarie stegkontrollen nedan,
+4. om alla relevanta plansteg är avslutade: erbjud/gör ny full analys och slutrapport enligt slutverifieringsreglerna.
+
+Hoppa inte från en ofullständig analys direkt till implementation bara för att några fynd redan har hittats. Om användaren uttryckligen väljer att börja från en preliminär plan får det ske, men planen och statusen ska då tydligt beskrivas som preliminära.
+
+## Tillstånd i åtgärdsfasen
 
 Varje plansteg har ett av tillstånden `planned`, `in-progress`, `completed`, `skipped` eller `blocked`. Ett steg får bara startas när dess beroenden är `completed` och alla obligatoriska beslutspunkter är lösta. Ett misslyckat genomförande eller verifiering blockerar steget tills problemet hanterats.
 
@@ -18,9 +29,9 @@ Visa kort:
 
 Om ett verkligt beslut krävs, exempelvis licensval, ska beslutet lösas uttryckligen innan steget får starta.
 
-## Nästa steg
+## Nästa steg i åtgärdsfasen
 
-`Gör nästa steg` ska:
+När en fix-plan finns ska `Gör nästa steg`:
 
 1. återuppta ett redan `in-progress`-steg före nytt arbete,
 2. annars välja första genomförbara plansteget vars beroenden och beslut är lösta,

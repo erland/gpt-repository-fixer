@@ -42,3 +42,18 @@ def test_license_is_not_auto_selected():
     t = text()
     assert "du ska inte själv välja eller ersätta licens" in t
     assert "copyright-innehavare" in t
+
+
+def test_full_analysis_must_be_exhaustive_before_final_plan():
+    t = text()
+    assert "Fullständig analys och completeness-gate" in t
+    assert "Begränsa aldrig den fullständiga fyndlistan till de viktigaste fyra eller fem fynden" in t
+    assert "alla identifierade öppna fynd ska bevaras" in t
+    assert "Slutlig fix-plan skapas normalt först när analysen är komplett" in t
+    assert "analys ofullständig → fortsätt" in t
+
+
+def test_missing_license_is_always_visible():
+    t = text()
+    assert "LICENSE-kontrollen ska alltid ge ett synligt resultat" in t
+    assert "explicit **Överväg**-fynd" in t
