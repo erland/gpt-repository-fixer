@@ -6,7 +6,10 @@ import json
 import sys
 from pathlib import Path
 
-from scripts.validate_runtime_parity import validate_runtime_parity
+try:
+    from scripts.validate_runtime_parity import validate_runtime_parity
+except ModuleNotFoundError:
+    from validate_runtime_parity import validate_runtime_parity
 
 try:
     import yaml
