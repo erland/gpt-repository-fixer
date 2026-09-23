@@ -17,7 +17,7 @@ def test_release_readiness_passes_for_peer_builds(tmp_path):
     report = validate_readiness(ROOT, build_root, check_source_clean=False)
     assert report['result'] == 'pass', report['errors']
     assert report['summary']['errors'] == 0
-    assert len(report['checks']) == 7
+    assert len(report['checks']) == 8
 
 
 def test_release_readiness_detects_instruction_divergence(tmp_path):
