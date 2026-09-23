@@ -17,10 +17,18 @@ V1 fokuserar på README och övrig Markdown-dokumentation, LICENSE, repository h
 
 ## Distributioner
 
-Projektet genererar två jämbördiga runtime-distributioner från samma canonical kontrakt:
+Projektet migreras till GPT Byggaren 1.5.0 och använder peer-runtime-modellen.
+
+Default-aktiva distributionsmål:
 
 - Chat ZIP
 - Custom GPT
+- OpenCode
+
+Bedömda men inte default-aktiverade mål:
+
+- Claude Projects – reducerat stöd eftersom lokala deterministiska verktyg inte kan bäddas in.
+- OpenAI Plugin v1 – reducerat stöd eftersom persistent workspace och lokal verktygsexekvering inte realiseras av pluginpaketet.
 
 ## Profil
 
