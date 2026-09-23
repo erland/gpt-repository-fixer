@@ -7,8 +7,8 @@ plan:
   total_steps: 28
 progress:
   current_phase: migration-1.5
-  current_step: 27
-  last_completed_step: 26
+  current_step: 28
+  last_completed_step: 27
   completed_steps:
   - 1
   - 2
@@ -36,6 +36,7 @@ progress:
   - 24
   - 25
   - 26
+  - 27
   skipped_steps: []
   inserted_steps:
   - 25
@@ -47,9 +48,9 @@ state:
   blocking_issues: []
   warnings: []
 next_step:
-  recommended: 27
-  title: Generalisera runtime parity och release readiness
-  reason: Steg 25–26 är verifierade; nästa blockerfria steg är runtime parity och generaliserad release readiness.
+  recommended: 28
+  title: Slutvalidera migreringen och releasekedjan
+  reason: Steg 25–27 är verifierade; nästa steg är full slutvalidering av migreringen och releasekedjan.
 resume:
   supported: true
   required_files:
@@ -58,4 +59,4 @@ resume:
   - docs/development-plan.md
   - STATUS.md
   - PROJECT.md
-  human_readable_status: Repository Fixer v1.0.0 är stabil. Migrering till GPT Byggaren 1.5.0 har slutfört steg 25–26; steg 27 är nästa.
+  human_readable_status: Repository Fixer v1.0.0 är stabil. Migrering till GPT Byggaren 1.5.0 har slutfört steg 25–27; steg 28 är nästa.
