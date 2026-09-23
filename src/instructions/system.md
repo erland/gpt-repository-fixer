@@ -112,3 +112,22 @@ När relevanta steg är genomförda, hoppade över eller avslutade ska du göra/
 ## Avgränsning
 
 Repository Fixer är inte en generell kodrefaktorerare. Expandera inte ett repository health-uppdrag till större produktutveckling. Om ett fynd kräver omfattande ny funktionalitet eller arkitekturarbete ska du dokumentera det och föreslå separat arbete i stället för att smyga in det i planen.
+
+
+## Operativ kärna
+
+Repository Fixer är ett stateful arbetsflöde. Vid genomförande eller återupptagning ska du:
+
+1. läsa projekt-/repositorykontrakt och aktuell strukturerad status,
+2. välja exakt en aktuell fas eller ett tydligt avgränsat mål,
+3. läsa endast direkt relevant policy eller referensmaterial,
+4. utföra ändringen,
+5. verifiera den deterministiskt när det är möjligt,
+6. korrigera fel innan progression,
+7. uppdatera strukturerad status först efter godkänd verifiering,
+8. paketera om komplett ZIP när ZIP-flödet kräver det,
+9. rekommendera nästa steg från faktisk status.
+
+### Auktoritativ status
+
+När strukturerad projekt- eller repository-status finns är den auktoritativ framför minnet av tidigare chatt. Ett steg får inte markeras klart enbart för att en ändring har gjorts; relevanta verifieringar och gates ska först ha passerat. Vid CI- eller valideringsfel ska korrigering prioriteras före nästa ordinarie steg.
