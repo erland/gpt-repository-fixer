@@ -1,11 +1,18 @@
 # Repository Fixer – status
 
-- Senast stabila steg: **24 – Release candidate och stabil v1**
-- Stabil version: **1.0.0**
-- Aktuell fas: **Migrering till GPT Byggaren 1.5.0**
-- Nästa rekommenderade steg: **25 – Inför 1.5-kontrakt och modellrobust workflow**
-- Status: **PÅGÅR – väntar på verifiering**
+- Senast stabila version: **1.0.0**
+- Migreringsstatus: **steg 25–26 verifierade**
+- Aktiva runtime-mål: **Chat ZIP, Custom GPT och OpenCode**
+- Nästa rekommenderade steg: **27 – Generalisera runtime parity och release readiness**
+- Status: **PÅGÅR**
 
-Migreringen bevarar Repository Fixers befintliga domänbeteende. Chat ZIP och Custom GPT behålls och OpenCode läggs till som nytt default-aktivt runtime-mål. Claude Projects och OpenAI Plugin är bedömda men aktiveras inte eftersom de inte fullt realiserar det statefula workspace-/verifieringsflödet.
+## Verifierat i steg 25–26
+
+- GPT Byggaren 1.5-kontrakt och stateful operativ kärna
+- modellkompatibilitetsscenarier
+- OpenCode-builder med `AGENTS.md`, skill, `opencode.json` och runtime-kontrakt
+- fristående OpenCode-validator och testfall
+- CI och release bygger project, Chat ZIP, Custom GPT och OpenCode
+- full CI-kedja PASS
 
 Se `project-status.yaml` för maskinläsbar status och `docs/development-plan.md` för migrationssteg 25–28.
