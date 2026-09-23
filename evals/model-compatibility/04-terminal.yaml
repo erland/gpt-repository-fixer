@@ -1,0 +1,7 @@
+id: terminal-behavior
+purpose: Verifiera korrekt beteende när inga öppna steg återstår.
+given: alla planerade steg är verifierat avslutade.
+expect:
+  - föreslå slutverifiering eller release-readiness när relevant
+  - hitta inte på ytterligare plansteg
+  - redovisa kvarstående varningar eller begränsningar
