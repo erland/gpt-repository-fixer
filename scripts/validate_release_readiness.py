@@ -7,6 +7,11 @@ import sys
 from pathlib import Path
 
 try:
+    from scripts.validate_runtime_parity import validate_runtime_parity
+except ModuleNotFoundError:
+    from validate_runtime_parity import validate_runtime_parity
+
+try:
     import yaml
 except Exception as exc:
     raise SystemExit('PyYAML is required') from exc
@@ -119,7 +124,14 @@ def validate_readiness(root: Path, build_root: Path | None = None, *, check_sour
     check('platform-limitations-documented', len(errors) == before,
           'GitHub-skrivning är explicit villkorad och read-only fallback dokumenterad.')
 
-    # 6. Canonical source tree must not contain generated/cache/temp artifacts outside build/dist/fixtures.
+    # 6. Generalized runtime parity is a release gate.
+    before = len(errors)
+    parity_report = validate_runtime_parity(root, build_root)
+    errors.extend(parity_report["errors"])
+    check("runtime-parity", len(errors) == before,
+          "Chat, Custom GPT och OpenCode verifieras mot gemensamma kontrakt; Claude/Plugin är explicit bedömda men ej aktiverade.")
+
+    # 7. Canonical source tree must not contain generated/cache/temp artifacts outside build/dist/fixtures.
     before = len(errors)
     if check_source_clean:
         for p in root.rglob('*'):
@@ -137,7 +149,7 @@ def validate_readiness(root: Path, build_root: Path | None = None, *, check_sour
         detail = 'Källträdets cleanliness-kontroll hoppades över av anroparen; övrig readiness-paritet verifierades.'
     check('canonical-tree-clean', len(errors) == before, detail)
 
-    # 7. Human/machine project status and README must describe the same current step.
+    # 8. Human/machine project status and README must describe the same current step.
     before = len(errors)
     status = yaml.safe_load(_read(root / 'project-status.yaml'))
     progress = status.get('progress', {})

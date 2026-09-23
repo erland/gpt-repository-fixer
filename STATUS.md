@@ -1,17 +1,25 @@
 # Repository Fixer – status
 
-- Senast genomförda steg: **24 – Release candidate och stabil v1**
-- Projektstatus: **PASS / STABIL v1**
-- Stabil version: **1.0.0**
-- Nästa rekommenderade steg: **inga – utvecklingsplanen är slutförd**
+- Stabil domänversion: **1.0.0**
+- GPT Byggaren-migrering: **KLAR**
+- Genomförda steg: **1–28**
+- Aktiva runtime-mål: **Chat ZIP, Custom GPT och OpenCode**
+- Projektstatus: **PASS / READY TO MERGE**
+- Nästa rekommenderade steg: **inga blockerande utvecklingssteg**
 
-## Levererat i steg 24
+## Slutverifiering
 
-- fullständig referensvalidering av hela v1-flödet
-- första stabila versionssatta projekt-, Chat ZIP- och Custom GPT-distributionen
-- release notes för `1.0.0`
-- reproducerbar releasekedja verifierad från ren canonical source
-- inga blockerande lint-, hygiene-, distributions- eller parity-fel
-- samtliga 24 steg i utvecklingsplanen markerade som genomförda
+- deterministiska tester: PASS
+- lint: PASS
+- project hygiene: PASS
+- project-, Chat-, Custom GPT- och OpenCode-build: PASS
+- distributionsvalidering: PASS
+- generaliserad runtime parity: PASS
+- release readiness: PASS
+- CI/release workflow parity: PASS
+- push-CI: PASS
+- PR-CI: PASS
 
-Se `project-status.yaml` för maskinläsbar status, `docs/release-notes-v1.0.0.md` för release notes och `docs/development-plan.md` för den slutförda planen.
+Claude Projects och OpenAI Plugin är bedömda men inte aktiverade i denna migrering.
+
+Se `project-status.yaml`, `docs/development-plan.md` och `docs/release-notes-gpt-builder-1.5.0-migration.md`.

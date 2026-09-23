@@ -4,11 +4,11 @@ project:
   name: Repository Fixer
 plan:
   path: docs/development-plan.md
-  total_steps: 24
+  total_steps: 28
 progress:
-  current_phase: stable-v1
-  current_step: 24
-  last_completed_step: 24
+  current_phase: maintenance
+  current_step: 28
+  last_completed_step: 28
   completed_steps:
   - 1
   - 2
@@ -34,16 +34,24 @@ progress:
   - 22
   - 23
   - 24
+  - 25
+  - 26
+  - 27
+  - 28
   skipped_steps: []
-  inserted_steps: []
+  inserted_steps:
+  - 25
+  - 26
+  - 27
+  - 28
 state:
   overall: pass
   blocking_issues: []
   warnings: []
 next_step:
   recommended: null
-  title: Stabil v1 klar
-  reason: Alla 24 planerade steg är genomförda och v1.0.0 är redo för release.
+  title: Migrering till GPT Byggaren 1.5.0 klar
+  reason: Samtliga migrationssteg 25–28 är verifierade och releasekedjan är grön.
 resume:
   supported: true
   required_files:
@@ -52,5 +60,4 @@ resume:
   - docs/development-plan.md
   - STATUS.md
   - PROJECT.md
-  human_readable_status: Alla 24 utvecklingssteg är klara. Repository Fixer v1.0.0
-    är stabil och release-ready.
+  human_readable_status: Migreringen till GPT Byggaren 1.5.0 är klar. Steg 1–28 är verifierade och projektet är redo att mergeas och releasas.

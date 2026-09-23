@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Platform-neutral Tool Contract",
+  "type": "object",
+  "required": ["contract_version", "tools"],
+  "properties": {
+    "contract_version": {"type": "integer", "const": 1},
+    "schema": {"type": "string", "minLength": 1},
+    "tools": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/tool"},
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "requirement": {
+      "enum": ["required", "recommended", "optional"]
+    },
+    "tool": {
+      "type": "object",
+      "required": ["id", "type", "requirement", "purpose"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$"},
+        "type": {
+          "enum": ["local_command", "script", "mcp", "api_action"]
+        },
+        "requirement": {"$ref": "#/$defs/requirement"},
+        "purpose": {"type": "string", "minLength": 1},
+        "command": {"type": "string", "minLength": 1},
+        "script": {"type": "string", "minLength": 1},
+        "protocol": {"type": "string", "minLength": 1},
+        "action": {"type": "string", "minLength": 1},
+        "deterministic": {"type": "boolean"},
+        "mutates_workspace": {"type": "boolean"},
+        "working_directory": {"type": "string", "minLength": 1},
+        "runtime_fallback": {
+          "enum": ["degrade", "manual", "block", "not_applicable"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"type": {"const": "local_command"}}, "required": ["type"]},
+          "then": {"required": ["command"]}
+        },
+        {
+          "if": {"properties": {"type": {"const": "script"}}, "required": ["type"]},
+          "then": {"required": ["script"]}
+        },
+        {
+          "if": {"properties": {"type": {"const": "mcp"}}, "required": ["type"]},
+          "then": {"required": ["protocol"]}
+        },
+        {
+          "if": {"properties": {"type": {"const": "api_action"}}, "required": ["type"]},
+          "then": {"required": ["action"]}
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

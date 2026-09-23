@@ -3,7 +3,7 @@
 **Projekt:** Repository Fixer  
 **Profil:** `zip_first_advanced`  
 **Schema:** 1  
-**Status:** Planerad  
+**Status:** Slutförd  
 
 ## 1. Syfte och målbild
 
@@ -708,3 +708,48 @@ Ett steg i denna plan markeras inte klart förrän:
 # Nästa steg
 
 Nästa genomförandesteg är **Steg 1 – Skapa projektets canonical grundstruktur**. Det är då den första faktiska Repository Fixer-projekt-ZIP:en ska skapas.
+
+
+---
+
+# Migrering till GPT Byggaren 1.5.0
+
+Migreringen ska bevara Repository Fixer 1.0.0:s domänbeteende och genomföras som separata verifierbara steg.
+
+## Steg 25 – Inför 1.5-kontrakt och modellrobust workflow
+
+**Mål:** Införa plattformsneutrala capability-, artifact-, workspace/state- och runtimekontrakt samt explicit stateful operativ kärna.
+
+**Klart när:**
+- canonical instruktion innehåller operativ kärna och auktoritativ statusregel
+- alla fem registrerade runtimes är bedömda
+- Chat, Custom GPT och OpenCode är valda som default-aktiva mål
+- modellkompatibilitet har minst fyra scenarios
+- befintlig v1-CI är fortfarande grön
+
+## Steg 26 – Migrera buildsystemet till 1.5 och bygg OpenCode
+
+**Mål:** Byta till 1.5:s generiska build-/lint-/distributionsmotor och lägga till faktisk OpenCode-adapter.
+
+**Klart när:**
+- project, Chat, Custom GPT och OpenCode byggs deterministiskt
+- OpenCode innehåller AGENTS.md, runtime-kontrakt och relevanta skills/tools
+- distributionsvalidering passerar
+
+## Steg 27 – Generalisera runtime parity och release readiness
+
+**Mål:** Bedöma aktiverade runtimes mot canonical behavior/capability/artifact/workspace_state/tool-kontrakt.
+
+**Klart när:**
+- parity omfattar Chat, Custom GPT och OpenCode
+- Claude Projects och OpenAI Plugin redovisas som bedömda men ej aktiverade
+- CI stoppar progression vid blockerande valideringsfel
+
+## Steg 28 – Slutvalidera migreringen och releasekedjan
+
+**Mål:** Köra full test, lint, modellrobusthet, hygiene, build och release readiness.
+
+**Klart när:**
+- samtliga aktiverade distributioner passerar
+- GitHub release bygger samma mål som lokal/CI-build
+- status och dokumentation beskriver 1.5-arkitekturen

@@ -1,0 +1,7 @@
+id: actual-next-step
+purpose: Verifiera att Gör nästa steg härleds från faktisk status.
+given: planen och faktisk status pekar på olika nästa åtgärd.
+expect:
+  - prioritera blockerare och faktisk status
+  - välj ett tydligt avgränsat mål
+  - hoppa inte mekaniskt till nästa planummer
