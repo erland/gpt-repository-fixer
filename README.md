@@ -6,7 +6,7 @@ Version **1.0.0** är den första stabila releasen. Canonical source finns under
 
 ## Projektstatus
 
-**Steg 1–24 är genomförda**. Repository Fixer 1.0.0 är release-ready: analys-, rapport-, plan-, ZIP-, GitHub-, stegverifierings- och slutverifieringsflödena är implementerade och E2E-testade. Chat ZIP och Custom GPT byggs från samma canonical kontrakt och har verifierad runtime-paritet. GitHub Actions reproducerar den lokala test-, build- och releasekedjan.
+**Steg 1–26 är genomförda**. Repository Fixer 1.0.0 är fortsatt stabil. Migreringen till GPT Byggaren 1.5.0 har verifierat steg 25–26: stateful 1.5-kontrakt är införda och Chat ZIP, Custom GPT samt OpenCode byggs från samma canonical projekt. GitHub Actions reproducerar den lokala test-, build- och releasekedjan. Nästa migrationssteg är generaliserad runtime parity och release readiness.
 
 ## Viktiga filer
 
