@@ -36,7 +36,7 @@ jobs:
         run: python scripts/project_hygiene.py --project-root . --mode final
 
       - name: Build all peer distributions
-        run: python scripts/build_distributions.py --project-root . --version 0.0.0-ci --targets project,chat,custom-gpt
+        run: python scripts/build_distributions.py --project-root . --version 0.0.0-ci --targets project,chat,custom-gpt,opencode
 
       - name: Validate built distributions
         run: python scripts/validate_distributions.py --project-root .
