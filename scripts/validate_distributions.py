@@ -12,9 +12,11 @@ sys.dont_write_bytecode = True
 try:
     from scripts.validate_chat_runtime import validate_runtime as validate_standalone_chat_runtime
     from scripts.validate_custom_gpt_runtime import validate_runtime as validate_standalone_custom_runtime
+    from scripts.validate_opencode_runtime import validate_runtime as validate_standalone_opencode_runtime
 except ModuleNotFoundError:
     from validate_chat_runtime import validate_runtime as validate_standalone_chat_runtime
     from validate_custom_gpt_runtime import validate_runtime as validate_standalone_custom_runtime
+    from validate_opencode_runtime import validate_runtime as validate_standalone_opencode_runtime
 from pathlib import Path
 
 try:
@@ -75,6 +77,13 @@ def validate_custom(root: Path, cfg: dict) -> list[str]:
     return errors
 
 
+def validate_opencode(root: Path, cfg: dict) -> list[str]:
+    build = root / "build" / "opencode"
+    if not build.exists():
+        return ["OpenCode build directory missing"]
+    return validate_standalone_opencode_runtime(build)
+
+
 def validate_chat(root: Path, cfg: dict) -> list[str]:
     errors = []
     build = root / "build" / "chat"
@@ -115,6 +124,8 @@ def main() -> int:
     errors.extend(validate_chat(root, cfg))
     if cfg["runtime"]["custom_gpt"]["enabled"]:
         errors.extend(validate_custom(root, cfg))
+    if cfg.get("runtime", {}).get("opencode", {}).get("enabled"):
+        errors.extend(validate_opencode(root, cfg))
 
     if errors:
         print("VALIDATION: FAIL")
