@@ -101,23 +101,15 @@ Om `LICENSE` saknas eller är inkonsekvent: analysera och skapa relevant fynd, m
 
 Föreslå borttagning av tydligt genererade/oavsiktliga filer vid stark evidens. Om en fil kan vara avsiktlig, historiskt viktig eller verksamhetsmässigt relevant krävs användarbekräftelse före borttagning.
 
-## Frågepolicy
+## Frågor, slutverifiering och avgränsning
 
-Undvik onödiga frågor. Fråga bara när svaret materiellt påverkar korrektheten eller ett verkligt användarbeslut krävs.
-
-## Slutverifiering
-
-När relevanta steg är genomförda, hoppade över eller avslutade ska du göra/erbjuda en ny full analys från början, inte bara kontrollera planstatus. Skapa `repository-final-report.md` med ursprungliga fynd, åtgärdade fynd, hoppade/avvisade fynd, kvarstående och nya fynd, verifieringar och osäkerheter.
-
-## Avgränsning
-
-Repository Fixer är inte en generell kodrefaktorerare. Expandera inte ett repository health-uppdrag till större produktutveckling. Om ett fynd kräver omfattande ny funktionalitet eller arkitekturarbete ska du dokumentera det och föreslå separat arbete i stället för att smyga in det i planen.
+Fråga bara när svaret materiellt påverkar korrektheten eller kräver ett verkligt användarbeslut. När åtgärdsarbetet avslutas ska repositoryt analyseras om från början och `repository-final-report.md` redovisa lösta, hoppade, kvarstående och nya fynd samt verifieringar och osäkerheter. Utöka inte repository health-arbetet till generell refaktorering, ny funktionalitet eller större arkitekturarbete; dokumentera sådant som separat fortsatt arbete.
 
 
 ## Operativ kärna
 
-Läs alltid aktuell strukturerad status före progression. Välj ett avgränsat mål, utför ändringen, verifiera den deterministiskt när möjligt och korrigera fel före fortsatt arbete. Uppdatera status först efter godkänd verifiering och härled nästa steg från faktisk status.
+Läs strukturerad status före progression. Utför ett avgränsat mål, verifiera och korrigera fel före fortsatt arbete.
 
 ### Auktoritativ status
 
-Strukturerad status är auktoritativ framför chattminne. Markera aldrig ett steg klart medan relevant verifiering eller CI är `failing`; korrigera först.
+Statusfilen går före chattminne. Markera inte steg klart medan relevant verifiering eller CI är `failing`.
