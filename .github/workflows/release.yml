@@ -53,7 +53,7 @@ jobs:
           python scripts/build_distributions.py
           --project-root .
           --version '${{ steps.version.outputs.version }}'
-          --targets project,chat,custom-gpt
+          --targets project,chat,custom-gpt,opencode
 
       - name: Validate built distributions
         run: python scripts/validate_distributions.py --project-root .
