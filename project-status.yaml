@@ -35,7 +35,11 @@ progress:
   - 23
   - 24
   skipped_steps: []
-  inserted_steps:\n  - 25\n  - 26\n  - 27\n  - 28
+  inserted_steps:
+  - 25
+  - 26
+  - 27
+  - 28
 state:
   overall: in-progress
   blocking_issues: []
@@ -52,5 +56,4 @@ resume:
   - docs/development-plan.md
   - STATUS.md
   - PROJECT.md
-  human_readable_status: Alla 24 utvecklingssteg är klara. Repository Fixer v1.0.0
-    är stabil och release-ready.
+  human_readable_status: Repository Fixer v1.0.0 är stabil. Migrering till GPT Byggaren 1.5.0 pågår i steg 25.
