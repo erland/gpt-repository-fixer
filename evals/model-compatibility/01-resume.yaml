@@ -1,0 +1,7 @@
+id: resume-from-state
+purpose: Verifiera att arbetet återupptas från strukturerad status i stället för chattminne.
+given: project-status.yaml anger ett pågående steg.
+expect:
+  - läs status före nästa åtgärd
+  - återuppta pågående steg
+  - markera inte steget klart utan verifiering
