@@ -41,6 +41,9 @@ jobs:
       - name: Validate built distributions
         run: python scripts/validate_distributions.py --project-root .
 
+      - name: Validate generalized runtime parity
+        run: python scripts/validate_runtime_parity.py --project-root . --build-root build
+
       - name: Validate runtime parity and release readiness
         run: python scripts/validate_release_readiness.py --project-root . --build-root build
 
