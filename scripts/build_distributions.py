@@ -355,6 +355,106 @@ def build_custom(root: Path, cfg: dict, build_root: Path, version: str) -> Path:
     return out
 
 
+
+def opencode_runtime_contract(cfg: dict) -> dict:
+    return {
+        "schema_version": 1,
+        "runtime_id": "opencode",
+        "capabilities": cfg.get("capabilities", {}),
+        "artifacts": cfg.get("artifacts", {}),
+        "workspace_state": cfg.get("workspace_state", {}),
+        "tools": cfg.get("tools", {}),
+        "adapter": {
+            "mode": "opencode_workspace",
+            "instructions": "AGENTS.md",
+            "workspace_first": True,
+            "skills_included": True,
+            "tool_integration": "host_tools",
+        },
+    }
+
+
+def build_opencode(root: Path, cfg: dict, build_root: Path, version: str) -> Path:
+    out = build_root / "opencode"
+    ensure_clean_dir(out)
+    runtime_cfg = cfg["runtime"]["opencode"]
+
+    canonical = (root / cfg["instructions"]["canonical"]).read_text(encoding="utf-8")
+    agents_path = out / runtime_cfg["layout"]["instructions"]
+    agents_path.write_text(
+        canonical.rstrip()
+        + "\n\n## OpenCode adapter\n\n"
+        + "- Arbeta i aktuellt workspace och följ den strukturerade statusen före chattminne.\n"
+        + "- Använd OpenCodes fil-, shell- och kodverktyg för verifiering när de är tillgängliga.\n"
+        + "- Kör ett avgränsat mål åt gången och korrigera failing verifiering före progression.\n",
+        encoding="utf-8",
+    )
+
+    knowledge_root = root / cfg["knowledge_architecture"]["canonical_root"]
+    knowledge_target = out / runtime_cfg["layout"]["knowledge"]
+    if knowledge_root.exists():
+        for p in sorted(knowledge_root.rglob("*")):
+            if p.is_file() and p.name != "KNOWLEDGE.md":
+                copy_file(p, knowledge_target / p.relative_to(knowledge_root))
+
+    skills_dir = out / runtime_cfg["skills"].get("directory", ".opencode/skills")
+    skill_dir = skills_dir / cfg["project"]["id"]
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\n"
+        f"name: {cfg['project']['id']}\n"
+        f"description: {cfg['project']['description'].strip()}\n"
+        "compatibility: opencode\n"
+        "---\n\n"
+        "## Purpose\n\n"
+        "Använd Repository Fixers canonical arbetsflöde för analys, planering, stegvis korrigering och verifiering.\n\n"
+        "## Workflow\n\n"
+        "- Läs aktuell repository-status före progression.\n"
+        "- Analysera före ändring.\n"
+        "- Utför ett avgränsat plansteg i taget.\n"
+        "- Verifiera efter ändring och korrigera failing resultat före nästa steg.\n",
+        encoding="utf-8",
+    )
+
+    config_path = out / runtime_cfg["layout"]["config"]
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(
+        json.dumps(
+            {
+                "$schema": "https://opencode.ai/config.json",
+                "permission": {
+                    "skill": {"*": "allow"},
+                    "bash": "ask",
+                    "edit": "ask",
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    contract_path = out / runtime_cfg["layout"]["runtime_contract"]
+    contract_path.parent.mkdir(parents=True, exist_ok=True)
+    contract_path.write_text(
+        json.dumps(opencode_runtime_contract(cfg), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    readme_tpl = (root / runtime_cfg["templates"]["readme"]).read_text(encoding="utf-8")
+    (out / "README.md").write_text(
+        render_template(readme_tpl, {
+            "GPT_NAME": cfg["project"]["name"],
+            "VERSION": version,
+        }),
+        encoding="utf-8",
+    )
+    (out / "VERSION").write_text(version + "\n", encoding="utf-8")
+    write_manifest(out, cfg["project"]["id"] + "-opencode", version, "AGENTS.md")
+    return out
+
+
 def project_files(root: Path) -> list[Path]:
     excluded_top = {"build", "dist", ".git"}
     result = []
@@ -389,6 +489,8 @@ def write_delivery_manifest(dist: Path, cfg: dict, version: str) -> None:
                 artifact_type = "chat_zip"
             elif "-custom-gpt-" in p.name:
                 artifact_type = "custom_gpt_zip"
+            elif "-opencode-" in p.name:
+                artifact_type = "opencode_zip"
             else:
                 artifact_type = "zip"
         elif p.name == "SHA256SUMS.txt":
@@ -419,7 +521,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project-root", default=".")
     parser.add_argument("--version", default="0.0.0-dev")
-    parser.add_argument("--targets", default="project,chat,custom-gpt")
+    parser.add_argument("--targets", default="project,chat,custom-gpt,opencode")
     args = parser.parse_args()
 
     root = Path(args.project_root).resolve()
@@ -442,6 +544,11 @@ def main() -> int:
         custom_root = build_custom(root, cfg, build_root, version)
         custom_zip = dist / f"{project_id}-custom-gpt-{version}.zip"
         stable_write_zip(custom_zip, custom_root, [p for p in custom_root.rglob("*") if p.is_file()])
+
+    if "opencode" in targets and cfg.get("runtime", {}).get("opencode", {}).get("enabled"):
+        opencode_root = build_opencode(root, cfg, build_root, version)
+        opencode_zip = dist / f"{project_id}-opencode-{version}.zip"
+        stable_write_zip(opencode_zip, opencode_root, [p for p in opencode_root.rglob("*") if p.is_file()])
 
     if "project" in targets:
         project_zip = dist / f"{project_id}-project-{version}.zip"
