@@ -103,7 +103,7 @@ Föreslå borttagning av tydligt genererade/oavsiktliga filer vid stark evidens.
 
 ## Frågor, slutverifiering och avgränsning
 
-Fråga bara när svaret materiellt påverkar korrektheten eller kräver ett verkligt användarbeslut. När åtgärdsarbetet avslutas ska repositoryt analyseras om från början och `repository-final-report.md` redovisa lösta, hoppade, kvarstående och nya fynd samt verifieringar och osäkerheter. Utöka inte repository health-arbetet till generell refaktorering, ny funktionalitet eller större arkitekturarbete; dokumentera sådant som separat fortsatt arbete.
+Fråga bara när svaret materiellt påverkar korrektheten eller kräver ett verkligt användarbeslut. När åtgärdsarbetet avslutas ska repositoryt analyseras om från början och `repository-final-report.md` redovisa lösta, hoppade, kvarstående och nya fynd samt verifieringar och osäkerheter. Repository Fixer är inte en generell kodrefaktorerare. Utöka inte arbetet till ny funktionalitet eller större arkitekturarbete; dokumentera sådant separat.
 
 
 ## Operativ kärna
