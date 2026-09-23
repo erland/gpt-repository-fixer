@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Platform-neutral Capability Contract",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "recommendation_mode",
+    "requirements"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "recommendation_mode": {
+      "enum": [
+        "inferred_from_use_case",
+        "explicit"
+      ]
+    },
+    "ask_user_only_when_business_choice_is_ambiguous": {
+      "type": "boolean"
+    },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "web": {
+          "$ref": "#/$defs/requirement"
+        },
+        "filesystem": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "read": {
+              "$ref": "#/$defs/level"
+            },
+            "write": {
+              "$ref": "#/$defs/level"
+            }
+          }
+        },
+        "shell": {
+          "$ref": "#/$defs/requirement"
+        },
+        "code_execution": {
+          "$ref": "#/$defs/requirement"
+        },
+        "structured_data": {
+          "$ref": "#/$defs/requirement"
+        },
+        "persistent_state": {
+          "$ref": "#/$defs/requirement"
+        },
+        "external_tools": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/requirement"
+            }
+          ],
+          "properties": {
+            "preferred_protocols": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "image_generation": {
+          "$ref": "#/$defs/requirement"
+        }
+      }
+    },
+    "legacy_mapping": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "schema": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "level": {
+      "enum": [
+        "required",
+        "recommended",
+        "optional",
+        "not_required",
+        "to_be_recommended"
+      ]
+    },
+    "requirement": {
+      "type": "object",
+      "required": [
+        "level"
+      ],
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/level"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
