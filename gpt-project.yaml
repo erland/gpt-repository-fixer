@@ -10,6 +10,37 @@ project:
 analysis:
   profile: zip_first_advanced
   source: user-defined-repository-health-workflow
+  runtime:
+    strategy: peer_candidates
+    candidates:
+      - runtime_id: chatgpt_chat
+        suitability: ready
+        activate_by_default: true
+        reason: Fullt stöd för filarbete, ZIP-flöde och portabel state.
+      - runtime_id: chatgpt_custom
+        suitability: reduced
+        activate_by_default: true
+        reason: Kärnanalys och ZIP-arbete stöds, medan GitHub-skrivning kräver extern integration.
+      - runtime_id: claude_project
+        suitability: reduced
+        activate_by_default: false
+        reason: Lokala deterministiska verktyg och verifieringsscripts kan inte bäddas in i Claude Projects.
+      - runtime_id: opencode
+        suitability: ready
+        activate_by_default: true
+        reason: Workspace-, fil- och lokal verktygsexekvering passar Repository Fixers stateful-flöde.
+      - runtime_id: openai_plugin
+        suitability: reduced
+        activate_by_default: false
+        reason: Plugin v1 kan paketera workflow och referenser men realiserar inte persistent workspace eller lokal verktygsexekvering.
+model_robustness:
+  level: stateful
+  design_target: simpler_and_stronger_llms
+  separate_model_instructions: false
+  prefer_deterministic_validation: true
+  max_core_policy_hops: 1
+  model_compatibility:
+    scenarios: evals/model-compatibility/
 instructions:
   canonical: src/instructions/system.md
   core_contract:
@@ -20,6 +51,8 @@ instructions:
       - "Minimum necessary change"
       - "Mänskligt beslut när det behövs"
       - "Verifiera efter ändring"
+      - "Operativ kärna"
+      - "Auktoritativ status"
     required_runtime_dependencies: []
     max_required_file_hops: 1
     knowledge_may_not_be_required_for_core_behavior: true
@@ -52,10 +85,206 @@ runtime:
     knowledge:
       max_files: 20
       strategy: identical
+    builder:
+      runtime_contract: builder/runtime-contract.json
     templates:
       capabilities: templates/capabilities.md.tpl
       readme: templates/README.custom-gpt.md.tpl
       compatibility: templates/COMPATIBILITY.md.tpl
+  claude:
+    enabled: false
+  opencode:
+    enabled: true
+    mode: opencode_workspace
+    layout:
+      instructions: AGENTS.md
+      config: opencode.json
+      tools: .opencode/tools
+      runtime_scripts: scripts
+      runtime_contract: .opencode/runtime-contract.json
+      knowledge: knowledge
+    templates:
+      readme: templates/README.opencode.md.tpl
+    skills:
+      enabled: true
+      directory: .opencode/skills
+  plugin:
+    enabled: false
+capabilities:
+  contract_version: 1
+  schema: schemas/capability-contract.schema.json
+  recommendation_mode: inferred_from_use_case
+  ask_user_only_when_business_choice_is_ambiguous: true
+  requirements:
+    web:
+      level: recommended
+    filesystem:
+      read: required
+      write: required
+    shell:
+      level: recommended
+    code_execution:
+      level: required
+    structured_data:
+      level: required
+    persistent_state:
+      level: required
+    external_tools:
+      level: optional
+
+artifacts:
+  contract_version: 1
+  schema: schemas/artifact-contract.schema.json
+  outputs:
+    repository_analysis:
+      kind: document
+      format: markdown
+      requirement: required
+      persistence: persistent
+      multiplicity: one
+    repository_fix_plan:
+      kind: document
+      format: markdown
+      requirement: required
+      persistence: persistent
+      multiplicity: one
+    repository_final_report:
+      kind: report
+      format: markdown
+      requirement: conditional
+      condition: completed_fix_workflow
+      persistence: persistent
+      multiplicity: one
+    updated_repository:
+      kind: package
+      format: zip
+      requirement: conditional
+      condition: zip_write_mode
+      persistence: persistent
+      multiplicity: one
+    project_package:
+      kind: package
+      format: zip
+      requirement: required
+      persistence: persistent
+      multiplicity: one
+    runtime_package:
+      kind: distribution
+      format: zip
+      requirement: required
+      persistence: persistent
+      multiplicity: many
+
+workspace_state:
+  contract_version: 1
+  schema: schemas/workspace-state-contract.schema.json
+  workspace:
+    requirement: required
+    persistence: required
+    portable: true
+    separate_from_assistant: true
+    artifact: project_package
+  state:
+    requirement: required
+    persistence: required
+    authority: workspace_file
+    format: yaml
+    path: project-status.yaml
+    conversation_fallback: false
+  runtime_preferences:
+    chat: conversation_or_file
+    agent: workspace_file
+
+tools:
+  contract_version: 1
+  schema: schemas/tool-contract.schema.json
+  tools: []
+
+workflow:
+  mode: explicit_state_machine
+  policy: src/runtime-policy/operational-execution-policy.md
+  current_state_source: project-status.yaml
+  execution_rule: one_state_or_bounded_goal_per_step
+  operational_core:
+    - read_project_contract
+    - read_project_status
+    - select_one_state_or_bounded_goal
+    - load_only_relevant_policy
+    - execute_change
+    - validate_deterministically
+    - correct_before_completion_on_failure
+    - update_structured_status_after_pass
+    - rebuild_project_zip_when_required
+    - recommend_next_step_from_actual_state
+  states:
+    idea_analysis:
+      next: [architecture]
+    architecture:
+      next: [planning]
+    planning:
+      next: [implementation]
+    implementation:
+      next: [validation]
+    validation:
+      next: [implementation, packaging]
+    packaging:
+      next: [release]
+    release:
+      next: [maintenance]
+    maintenance:
+      next: [implementation, validation]
+    blocked:
+      control_state: true
+    paused:
+      control_state: true
+
+build:
+  deterministic: true
+  create_manifest: true
+  create_checksums: true
+  build_project_zip: true
+  build_chat_zip: true
+  build_custom_gpt_zip: true
+  build_claude_zip: false
+  build_opencode_zip: true
+  build_plugin_zip: false
+
+build_system:
+  targets: [project, chat, custom-gpt, opencode]
+  runtime_targets:
+    chat:
+      runtime_id: chatgpt_chat
+      runtime_key: chat_zip
+      builder: chat
+      artifact_type: chat_zip
+      filename_pattern: <project-id>-chat-v<version>.zip
+    custom-gpt:
+      runtime_id: chatgpt_custom
+      runtime_key: custom_gpt
+      builder: custom_gpt
+      artifact_type: custom_gpt_zip
+      filename_pattern: <project-id>-custom-gpt-v<version>.zip
+    opencode:
+      runtime_id: opencode
+      runtime_key: opencode
+      builder: opencode
+      artifact_type: opencode_zip
+      filename_pattern: <project-id>-opencode-v<version>.zip
+
+runtime_parity:
+  registered_runtimes:
+    - chatgpt_chat
+    - chatgpt_custom
+    - claude_project
+    - opencode
+    - openai_plugin
+  compared_categories:
+    - behavior
+    - capability
+    - artifact
+    - workspace_state
+    - tool
+
 development:
   plan: docs/development-plan.md
   status: project-status.yaml
