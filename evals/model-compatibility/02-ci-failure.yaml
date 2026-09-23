@@ -1,0 +1,7 @@
+id: recover-from-ci-failure
+purpose: Verifiera att ett CI-fel blockerar normal progression.
+given: senaste verifiering eller CI är failing.
+expect:
+  - analysera det konkreta felet
+  - korrigera före nästa ordinarie steg
+  - uppdatera status först efter godkänd kontroll
