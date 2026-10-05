@@ -448,10 +448,10 @@ def build_plugin(root: Path, cfg: dict, build_root: Path, version: str) -> Path:
     skill = out / "skills" / skill_id
     refs = skill / "references"
     scripts_target = skill / "scripts" / "lib"
-    assets = skill / "assets"
+    templates_target = skill / "templates"
     refs.mkdir(parents=True)
     scripts_target.mkdir(parents=True)
-    assets.mkdir(parents=True)
+    templates_target.mkdir(parents=True)
 
     plugin = {
         "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -493,7 +493,7 @@ def build_plugin(root: Path, cfg: dict, build_root: Path, version: str) -> Path:
     copy_tree_filtered(knowledge_root, refs / "knowledge", ignore_names={"KNOWLEDGE.md"})
     copy_tree_filtered(root / cfg["structure"]["schemas"]["path"], refs / "schemas", ignore_names={"README.md"})
     copy_tree_filtered(root / cfg["structure"]["runtime_policy"]["path"], refs / "runtime-policy", ignore_names={"README.md"})
-    copy_tree_filtered(root / cfg["structure"]["templates"]["path"], assets / "templates", ignore_names={"README.md"})
+    copy_tree_filtered(root / cfg["structure"]["templates"]["path"], templates_target, ignore_names={"README.md"})
 
     for name in PLUGIN_RUNTIME_LIB:
         copy_file(root / "scripts" / "lib" / name, scripts_target / name)
