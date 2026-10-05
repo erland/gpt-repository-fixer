@@ -13,10 +13,12 @@ try:
     from scripts.validate_chat_runtime import validate_runtime as validate_standalone_chat_runtime
     from scripts.validate_custom_gpt_runtime import validate_runtime as validate_standalone_custom_runtime
     from scripts.validate_opencode_runtime import validate_runtime as validate_standalone_opencode_runtime
+    from scripts.validate_openai_plugin_runtime import validate_runtime as validate_standalone_plugin_runtime
 except ModuleNotFoundError:
     from validate_chat_runtime import validate_runtime as validate_standalone_chat_runtime
     from validate_custom_gpt_runtime import validate_runtime as validate_standalone_custom_runtime
     from validate_opencode_runtime import validate_runtime as validate_standalone_opencode_runtime
+    from validate_openai_plugin_runtime import validate_runtime as validate_standalone_plugin_runtime
 from pathlib import Path
 
 try:
@@ -84,6 +86,13 @@ def validate_opencode(root: Path, cfg: dict) -> list[str]:
     return validate_standalone_opencode_runtime(build)
 
 
+def validate_plugin(root: Path, cfg: dict) -> list[str]:
+    build = root / "build" / "plugin"
+    if not build.exists():
+        return ["OpenAI Plugin build directory missing"]
+    return validate_standalone_plugin_runtime(build)
+
+
 def validate_chat(root: Path, cfg: dict) -> list[str]:
     errors = []
     build = root / "build" / "chat"
@@ -126,6 +135,8 @@ def main() -> int:
         errors.extend(validate_custom(root, cfg))
     if cfg.get("runtime", {}).get("opencode", {}).get("enabled"):
         errors.extend(validate_opencode(root, cfg))
+    if cfg.get("runtime", {}).get("plugin", {}).get("enabled"):
+        errors.extend(validate_plugin(root, cfg))
 
     if errors:
         print("VALIDATION: FAIL")
