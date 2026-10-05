@@ -753,3 +753,23 @@ Migreringen ska bevara Repository Fixer 1.0.0:s domänbeteende och genomföras s
 - samtliga aktiverade distributioner passerar
 - GitHub release bygger samma mål som lokal/CI-build
 - status och dokumentation beskriver 1.5-arkitekturen
+
+
+## Steg 29 – OpenAI Plugin peer-distribution
+
+**Mål:** Aktivera OpenAI Plugin som skills-first `equivalent_runtime_dependent` peer runtime utan att försvaga Repository Fixers state-, verifierings- eller GitHub/ZIP-kontrakt.
+
+**Leverabler:**
+- `plugin.json` och `runtime-contract.json` i Plugin-ZIP-roten,
+- canonical instruktion i `skills/repository-fixer/SKILL.md`,
+- canonical Knowledge, schemas och runtime policies som references,
+- explicit runtimebibliotek från `scripts/lib/` samt templates på de sökvägar biblioteket förväntar sig,
+- inga nya canonical runtime-tools och ingen MCP-wrapper,
+- Plugin i buildsystem, distributionsvalidering, runtime parity, release readiness, CI och GitHub Release.
+
+**Klart när:**
+- Chat, Custom GPT, OpenCode och OpenAI Plugin byggs och valideras,
+- Plugin använder workspace_file som state authority,
+- fix-steg inte får markeras verifierade utan faktisk code/build/test-verifiering,
+- GitHub branch/commit/PR och ZIP-leverans endast påstås när hosten faktiskt erbjuder motsvarande capability,
+- projektets egna build/lint/release-validatorer inte paketeras som Plugin runtime-resurser.

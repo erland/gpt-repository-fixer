@@ -24,11 +24,11 @@ Default-aktiva distributionsmål:
 - Chat ZIP
 - Custom GPT
 - OpenCode
+- OpenAI Plugin – `equivalent_runtime_dependent`; skills-first paket med canonical workflow, state-kontrakt och explicit runtimebibliotek. Full fix-parity kräver writable/persistent workspace och code execution från hosten.
 
 Bedömda men inte default-aktiverade mål:
 
 - Claude Projects – reducerat stöd eftersom lokala deterministiska verktyg inte kan bäddas in.
-- OpenAI Plugin v1 – reducerat stöd eftersom persistent workspace och lokal verktygsexekvering inte realiseras av pluginpaketet.
 
 ## Profil
 

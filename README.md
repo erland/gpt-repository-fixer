@@ -6,7 +6,7 @@ Version **1.0.0** är den första stabila releasen. Canonical source finns under
 
 ## Projektstatus
 
-**Steg 1–28 är genomförda**. Repository Fixer 1.0.0 är fortsatt stabil. Migreringen till GPT Byggaren 1.5.0 har verifierat steg 25–26: stateful 1.5-kontrakt är införda och Chat ZIP, Custom GPT samt OpenCode byggs från samma canonical projekt. GitHub Actions reproducerar den lokala test-, build- och releasekedjan. Migreringen till GPT Byggaren 1.5.0 är slutförd och slutvaliderad. Chat ZIP, Custom GPT och OpenCode byggs som aktiva peer runtimes; Claude Projects och OpenAI Plugin är bedömda men inte aktiverade.
+**Steg 1–29 är genomförda**. Repository Fixer 1.0.0 är fortsatt stabil. Migreringen till GPT Byggaren 1.5.0 har verifierat steg 25–26: stateful 1.5-kontrakt är införda och Chat ZIP, Custom GPT samt OpenCode byggs från samma canonical projekt. GitHub Actions reproducerar den lokala test-, build- och releasekedjan. Migreringen till GPT Byggaren 1.5.0 är slutförd och slutvaliderad. Chat ZIP, Custom GPT och OpenCode är stabila peer runtimes. OpenAI Plugin är nu implementerad som skills-first `equivalent_runtime_dependent` peer runtime; full fix-parity kräver writable workspace, persistent state och kompatibel code execution. Claude Projects är fortsatt bedömd men inte aktiverad.
 
 ## Viktiga filer
 

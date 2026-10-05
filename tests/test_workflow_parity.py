@@ -13,7 +13,7 @@ def _text(path: str) -> str:
 def test_ci_and_release_build_same_runtime_targets():
     ci = _text(".github/workflows/ci.yml")
     release = _text(".github/workflows/release.yml")
-    targets = "--targets project,chat,custom-gpt,opencode"
+    targets = "--targets project,chat,custom-gpt,opencode,plugin"
     assert targets in ci
     assert targets in release
 

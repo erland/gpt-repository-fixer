@@ -12,6 +12,7 @@ ACTIVE_BUILDS = {
     "chatgpt_chat": ("chat_zip", "chat"),
     "chatgpt_custom": ("custom_gpt", "custom-gpt"),
     "opencode": ("opencode", "opencode"),
+    "openai_plugin": ("plugin", "plugin"),
 }
 
 REGISTERED = {"chatgpt_chat", "chatgpt_custom", "claude_project", "opencode", "openai_plugin"}
@@ -54,7 +55,7 @@ def validate_runtime_parity(root: Path, build_root: Path | None = None) -> dict:
         item = candidates.get(runtime_id, {})
         if not item.get("reason"):
             errors.append(f"{runtime_id} missing suitability reason")
-        if item.get("suitability") not in {"ready", "reduced", "not_viable"}:
+        if item.get("suitability") not in {"ready", "reduced", "not_viable", "equivalent_runtime_dependent"}:
             errors.append(f"{runtime_id} has invalid suitability")
     check("runtime-assessment-complete", len(errors) == before,
           "Alla registrerade runtimes har explicit suitability och motivering.")
@@ -68,18 +69,23 @@ def validate_runtime_parity(root: Path, build_root: Path | None = None) -> dict:
         if not (build_root / build_dir).exists():
             errors.append(f"{runtime_id} build missing: {build_dir}")
     check("active-runtime-builds", len(errors) == before,
-          "Chat, Custom GPT och OpenCode är aktiva och har byggda distributioner.")
+          "Chat, Custom GPT, OpenCode och OpenAI Plugin är aktiva och har byggda distributioner.")
 
     before = len(errors)
-    for runtime_id, runtime_key in (("claude_project", "claude"), ("openai_plugin", "plugin")):
-        if cfg.get("runtime", {}).get(runtime_key, {}).get("enabled"):
-            errors.append(f"{runtime_id} must remain disabled in this migration")
-        if candidates.get(runtime_id, {}).get("activate_by_default"):
-            errors.append(f"{runtime_id} must not activate by default")
-        if candidates.get(runtime_id, {}).get("suitability") != "reduced":
-            errors.append(f"{runtime_id} must be assessed as reduced")
-    check("inactive-runtime-decisions", len(errors) == before,
-          "Claude Projects och OpenAI Plugin är bedömda men explicit ej aktiverade.")
+    plugin = candidates.get("openai_plugin", {})
+    if plugin.get("suitability") != "equivalent_runtime_dependent":
+        errors.append("openai_plugin must be equivalent_runtime_dependent")
+    if not plugin.get("activate_by_default"):
+        errors.append("openai_plugin must activate by default")
+    claude = candidates.get("claude_project", {})
+    if cfg.get("runtime", {}).get("claude", {}).get("enabled"):
+        errors.append("claude_project must remain disabled in this migration")
+    if claude.get("activate_by_default"):
+        errors.append("claude_project must not activate by default")
+    if claude.get("suitability") != "reduced":
+        errors.append("claude_project must be assessed as reduced")
+    check("runtime-decisions", len(errors) == before,
+          "OpenAI Plugin är runtime-dependent aktiv peer; Claude Projects är fortsatt reducerad/inaktiv.")
 
     result = "pass" if not errors else "fail"
     return {

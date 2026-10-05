@@ -56,11 +56,16 @@ def validate_readiness(root: Path, build_root: Path | None = None, *, check_sour
     canonical_instruction = root / cfg['instructions']['canonical']
     chat_instruction = build_root / 'chat' / 'assistant' / 'instructions.md'
     custom_instruction = build_root / 'custom-gpt' / 'builder' / 'instructions.md'
+    plugin_instruction = build_root / 'plugin' / 'skills' / 'repository-fixer' / 'SKILL.md'
     before = len(errors)
     _compare_file(errors, canonical_instruction, chat_instruction, 'chat instructions')
     _compare_file(errors, canonical_instruction, custom_instruction, 'custom-gpt instructions')
+    if not plugin_instruction.exists():
+        errors.append('Missing OpenAI Plugin SKILL.md')
+    elif canonical_instruction.read_text(encoding='utf-8').strip() not in plugin_instruction.read_text(encoding='utf-8'):
+        errors.append('OpenAI Plugin SKILL.md does not embed canonical instruction')
     check('canonical-instruction-parity', len(errors) == before,
-          'Chat ZIP och Custom GPT använder canonical src/instructions/system.md utan avvikelse.')
+          'Chat/Custom använder canonical instruktion direkt och Plugin bäddar in samma canonical kontrakt i SKILL.md.')
 
     # 2. Canonical Knowledge must be present and byte-identical in both runtimes.
     canonical_knowledge = _canonical_knowledge(root, cfg)
@@ -69,8 +74,10 @@ def validate_readiness(root: Path, build_root: Path | None = None, *, check_sour
         _compare_file(errors, source, build_root / 'chat' / 'knowledge' / rel, f'chat knowledge/{rel}')
         _compare_file(errors, source, build_root / 'custom-gpt' / 'builder' / 'knowledge-package' / rel,
                       f'custom-gpt knowledge/{rel}')
+        _compare_file(errors, source, build_root / 'plugin' / 'skills' / 'repository-fixer' / 'references' / 'knowledge' / rel,
+                      f'plugin knowledge/{rel}')
     check('canonical-knowledge-parity', len(errors) == before,
-          f'{len(canonical_knowledge)} canonical Knowledge-filer finns identiskt i båda distributionerna.')
+          f'{len(canonical_knowledge)} canonical Knowledge-filer finns identiskt i Chat, Custom GPT och Plugin.')
 
     # 3. Chat runtime policies must also be generated from canonical policy source.
     policy_root = root / cfg['structure']['runtime_policy']['path']
@@ -129,7 +136,7 @@ def validate_readiness(root: Path, build_root: Path | None = None, *, check_sour
     parity_report = validate_runtime_parity(root, build_root)
     errors.extend(parity_report["errors"])
     check("runtime-parity", len(errors) == before,
-          "Chat, Custom GPT och OpenCode verifieras mot gemensamma kontrakt; Claude/Plugin är explicit bedömda men ej aktiverade.")
+          "Chat, Custom GPT, OpenCode och OpenAI Plugin verifieras mot gemensamma kontrakt; Claude Projects är explicit reducerad/inaktiv.")
 
     # 7. Canonical source tree must not contain generated/cache/temp artifacts outside build/dist/fixtures.
     before = len(errors)
