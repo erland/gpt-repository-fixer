@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from scripts.build_distributions import build_chat, build_custom, build_opencode, load_config
+from scripts.build_distributions import build_chat, build_custom, build_opencode, build_plugin, load_config
 from scripts.validate_runtime_parity import validate_runtime_parity
 
 
@@ -15,6 +15,7 @@ def test_runtime_parity_passes_for_enabled_peer_builds(tmp_path):
     build_chat(ROOT, cfg, build_root, "test-parity")
     build_custom(ROOT, cfg, build_root, "test-parity")
     build_opencode(ROOT, cfg, build_root, "test-parity")
+    build_plugin(ROOT, cfg, build_root, "test-parity")
 
     report = validate_runtime_parity(ROOT, build_root)
     assert report["result"] == "pass", report["errors"]
