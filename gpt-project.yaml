@@ -30,9 +30,9 @@ analysis:
         activate_by_default: true
         reason: Workspace-, fil- och lokal verktygsexekvering passar Repository Fixers stateful-flöde.
       - runtime_id: openai_plugin
-        suitability: reduced
-        activate_by_default: false
-        reason: Plugin v1 kan paketera workflow och referenser men realiserar inte persistent workspace eller lokal verktygsexekvering.
+        suitability: equivalent_runtime_dependent
+        activate_by_default: true
+        reason: Skills-first runtime kan bära hela repository-workflow, portabel state och runtimebibliotek när hosten erbjuder writable workspace, persistent filesystem och code execution.
 model_robustness:
   level: stateful
   design_target: simpler_and_stronger_llms
@@ -109,7 +109,21 @@ runtime:
       enabled: true
       directory: .opencode/skills
   plugin:
-    enabled: false
+    enabled: true
+    role: peer_distribution
+    mode: skills_first
+    skill_id: repository-fixer
+    state_authority: workspace_file
+    state_path: project-status.yaml
+    compatibility:
+      parity: equivalent_runtime_dependent
+      writable_workspace: required_for_fix_workflow
+      persistent_state: required
+      code_execution: required_for_full_parity
+      shell: recommended
+      github_write: optional_external_capability
+      archive_output: host_capability_dependent
+      mcp_required_for_script_resources: false
 capabilities:
   contract_version: 1
   schema: schemas/capability-contract.schema.json
@@ -247,10 +261,10 @@ build:
   build_custom_gpt_zip: true
   build_claude_zip: false
   build_opencode_zip: true
-  build_plugin_zip: false
+  build_plugin_zip: true
 
 build_system:
-  targets: [project, chat, custom-gpt, opencode]
+  targets: [project, chat, custom-gpt, opencode, plugin]
   runtime_targets:
     chat:
       runtime_id: chatgpt_chat
@@ -270,6 +284,12 @@ build_system:
       builder: opencode
       artifact_type: opencode_zip
       filename_pattern: <project-id>-opencode-v<version>.zip
+    plugin:
+      runtime_id: openai_plugin
+      runtime_key: plugin
+      builder: plugin
+      artifact_type: plugin_zip
+      filename_pattern: <project-id>-plugin-v<version>.zip
 
 runtime_parity:
   registered_runtimes:
