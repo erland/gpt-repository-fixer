@@ -374,6 +374,141 @@ def opencode_runtime_contract(cfg: dict) -> dict:
     }
 
 
+PLUGIN_RUNTIME_LIB = [
+    "__init__.py",
+    "analysis_report.py",
+    "build_test_analysis.py",
+    "e2e_analysis.py",
+    "final_report.py",
+    "finding_model.py",
+    "fix_plan.py",
+    "github_actions_analysis.py",
+    "github_read_workflow.py",
+    "github_write_workflow.py",
+    "hygiene_analysis.py",
+    "license_analysis.py",
+    "markdown_analysis.py",
+    "project_model.py",
+    "readme_analysis.py",
+    "repository_inventory.py",
+    "step_control.py",
+    "step_verification.py",
+    "zip_workflow.py",
+]
+
+
+def plugin_runtime_contract(cfg: dict, version: str) -> dict:
+    return {
+        "schema_version": 1,
+        "runtime_id": "openai_plugin",
+        "version": version,
+        "compatibility": "equivalent_runtime_dependent",
+        "capabilities": cfg.get("capabilities", {}),
+        "artifacts": cfg.get("artifacts", {}),
+        "workspace_state": cfg.get("workspace_state", {}),
+        "tools": cfg.get("tools", {}),
+        "adapter": {
+            "mode": "openai_plugin",
+            "skills_first": True,
+            "workspace_first": True,
+            "entrypoint": "skills/repository-fixer/SKILL.md",
+            "state_authority": "workspace_file",
+            "state_path": cfg["runtime"]["plugin"]["state_path"],
+            "local_scripts_are_runtime_tools": False,
+            "mcp_generated": False,
+            "script_resources": {
+                "packaged": PLUGIN_RUNTIME_LIB,
+                "mcp_required_for_resource_use": False,
+                "execution": "host_code_execution_when_available",
+            },
+            "host_requirements": {
+                "filesystem_read": "required",
+                "filesystem_write": "required_for_fix_workflow",
+                "persistent_state": "required",
+                "code_execution": "required_for_full_parity",
+                "shell": "recommended",
+                "github_write": "optional_external_capability",
+                "archive_output": "required_for_zip_delivery",
+            },
+            "fallback_policy": {
+                "without_writable_workspace": "analysis_and_planning_only",
+                "without_code_execution": "do_not_mark_changes_verified",
+                "without_github_write": "read_only_analysis_or_zip_mode",
+                "without_archive_output": "do_not_claim_updated_zip_delivered",
+            },
+        },
+    }
+
+
+def build_plugin(root: Path, cfg: dict, build_root: Path, version: str) -> Path:
+    out = build_root / "plugin"
+    ensure_clean_dir(out)
+    runtime_cfg = cfg["runtime"]["plugin"]
+    skill_id = runtime_cfg["skill_id"]
+    skill = out / "skills" / skill_id
+    refs = skill / "references"
+    scripts_target = skill / "scripts" / "lib"
+    assets = skill / "assets"
+    refs.mkdir(parents=True)
+    scripts_target.mkdir(parents=True)
+    assets.mkdir(parents=True)
+
+    plugin = {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        "name": skill_id,
+        "version": version,
+        "description": cfg["project"]["description"].strip(),
+    }
+    (out / "plugin.json").write_text(
+        json.dumps(plugin, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (out / "runtime-contract.json").write_text(
+        json.dumps(plugin_runtime_contract(cfg, version), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    canonical = (root / cfg["instructions"]["canonical"]).read_text(encoding="utf-8").strip()
+    skill_text = (
+        "---\n"
+        f"name: {json.dumps(skill_id, ensure_ascii=False)}\n"
+        f"description: {json.dumps(cfg['project']['description'].strip(), ensure_ascii=False)}\n"
+        "---\n\n"
+        "# Repository Fixer\n\n"
+        "## Plugin-runtime\n\n"
+        "- Arbeta workspace-first och läs strukturerad status före progression. Chattminne ersätter aldrig workspace-state.\n"
+        "- Fullt fix-flöde kräver writable workspace och persistent state. Utan detta får du analysera och planera men inte påstå att repositoryt är uppdaterat.\n"
+        "- Markera aldrig ett ändringssteg verifierat om relevanta build/test/syntax/referens-kontroller inte faktiskt har körts och passerat.\n"
+        "- GitHub branch/commit/PR kräver faktisk auktoriserad GitHub write-capability; annars arbeta read-only eller via ZIP.\n"
+        "- Komplett uppdaterad ZIP får endast påstås levererad när hosten faktiskt kan skapa och integritetskontrollera arkivet.\n"
+        "- Paketerade Pythonfiler under scripts/lib är stödresurser, inte canonical tools, och kräver ingen MCP-wrapper enbart för att användas.\n"
+        "- Projektets egna build-, lint-, parity- och release-validatorer ingår inte i Plugin-runtime-resurserna.\n\n"
+        "## Canonical behavior\n\n"
+        + canonical
+        + "\n"
+    )
+    (skill / "SKILL.md").write_text(skill_text, encoding="utf-8")
+
+    knowledge_root = root / cfg["knowledge_architecture"]["canonical_root"]
+    copy_tree_filtered(knowledge_root, refs / "knowledge", ignore_names={"KNOWLEDGE.md"})
+    copy_tree_filtered(root / cfg["structure"]["schemas"]["path"], refs / "schemas", ignore_names={"README.md"})
+    copy_tree_filtered(root / cfg["structure"]["runtime_policy"]["path"], refs / "runtime-policy", ignore_names={"README.md"})
+    copy_tree_filtered(root / cfg["structure"]["templates"]["path"], assets / "templates", ignore_names={"README.md"})
+
+    for name in PLUGIN_RUNTIME_LIB:
+        copy_file(root / "scripts" / "lib" / name, scripts_target / name)
+
+    (out / "README.md").write_text(
+        f"# Repository Fixer – OpenAI Plugin {version}\n\n"
+        "Skills-first equivalent_runtime_dependent peer runtime. Fullt fix-flöde kräver writable workspace, persistent state och kompatibel code execution. "
+        "GitHub write och ZIP-output används endast när hosten erbjuder dem. Paketerade scripts/lib-resurser kräver ingen MCP-wrapper.\n",
+        encoding="utf-8",
+    )
+    (out / "VERSION").write_text(version + "\n", encoding="utf-8")
+    write_manifest(out, "openai_plugin", version, "skills/repository-fixer/SKILL.md")
+    return out
+
+
 def build_opencode(root: Path, cfg: dict, build_root: Path, version: str) -> Path:
     out = build_root / "opencode"
     ensure_clean_dir(out)
@@ -491,6 +626,8 @@ def write_delivery_manifest(dist: Path, cfg: dict, version: str) -> None:
                 artifact_type = "custom_gpt_zip"
             elif "-opencode-" in p.name:
                 artifact_type = "opencode_zip"
+            elif "-plugin-" in p.name:
+                artifact_type = "plugin_zip"
             else:
                 artifact_type = "zip"
         elif p.name == "SHA256SUMS.txt":
@@ -521,7 +658,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project-root", default=".")
     parser.add_argument("--version", default="0.0.0-dev")
-    parser.add_argument("--targets", default="project,chat,custom-gpt,opencode")
+    parser.add_argument("--targets", default="project,chat,custom-gpt,opencode,plugin")
     args = parser.parse_args()
 
     root = Path(args.project_root).resolve()
@@ -549,6 +686,11 @@ def main() -> int:
         opencode_root = build_opencode(root, cfg, build_root, version)
         opencode_zip = dist / f"{project_id}-opencode-{version}.zip"
         stable_write_zip(opencode_zip, opencode_root, [p for p in opencode_root.rglob("*") if p.is_file()])
+
+    if "plugin" in targets and cfg.get("runtime", {}).get("plugin", {}).get("enabled"):
+        plugin_root = build_plugin(root, cfg, build_root, version)
+        plugin_zip = dist / f"{project_id}-plugin-{version}.zip"
+        stable_write_zip(plugin_zip, plugin_root, [p for p in plugin_root.rglob("*") if p.is_file()])
 
     if "project" in targets:
         project_zip = dist / f"{project_id}-project-{version}.zip"
