@@ -10,28 +10,24 @@ def _text(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_ci_and_release_build_same_runtime_targets():
+def test_ci_and_release_use_same_pinned_canonical_engine():
     ci = _text(".github/workflows/ci.yml")
     release = _text(".github/workflows/release.yml")
-    targets = "--targets project,chat,custom-gpt,opencode,plugin"
-    assert targets in ci
-    assert targets in release
+    for text in (ci, release):
+        assert "gpt-byggaren-engine-1.6.33.zip" in text
+        assert "scripts/install_distribution_engine.py" in text
+        assert "scripts/build_distributions.py" in text
+        assert "scripts/validate_distributions.py" in text
+        assert "--targets project,chat,custom-gpt" not in text
 
 
-def test_ci_and_release_run_same_release_gates():
+def test_ci_and_release_require_canonical_validation_before_delivery():
     ci = _text(".github/workflows/ci.yml")
     release = _text(".github/workflows/release.yml")
-    commands = [
-        "python -m pytest -q -p no:cacheprovider",
-        "python scripts/lint_gpt_project.py --project-root .",
-        "python scripts/project_hygiene.py --project-root . --mode final",
-        "python scripts/validate_distributions.py --project-root .",
-        "python scripts/validate_runtime_parity.py --project-root . --build-root build",
-        "python scripts/validate_release_readiness.py --project-root . --build-root build",
-    ]
-    for command in commands:
-        assert command in ci
-        assert command in release
+    assert ci.index("scripts/validate_distributions.py") < ci.index("Upload canonical active distributions")
+    assert release.index("scripts/validate_distributions.py") < release.index("gh release upload")
+    assert "python -m pytest -q -p no:cacheprovider" in ci
+    assert "python -m pytest -q -p no:cacheprovider" in release
 
 
 def test_release_version_is_derived_from_release_tag():
