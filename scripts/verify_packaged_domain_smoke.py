@@ -42,8 +42,23 @@ def check_archive(archive: Path):
             {"kind": "file", "path": "pom.xml"}]})
         assert "negative findings require concrete evidence" in finding.validate_semantics(
             {"classification": "must-fix", "evidence": []})
+        step_control = load_from_archive(
+            archive, "repository-remediation", "step_control.py", workspace)
+        verification = load_from_archive(
+            archive, "repository-verification", "step_verification.py", workspace)
+        plan = {"repository_name": "smoke-repo", "source_finding_ids": ["F-1"],
+                "steps": [{"id": "step-1", "decisions": [], "dependencies": [],
+                           "likely_files": ["README.md"]}]}
+        progress = step_control.initialize_progress(plan)
+        assert progress["steps"][0]["id"] == "step-1"
+        assert progress["steps"][0]["status"] == "planned"
+        scoped = verification.diff_scope_check(plan["steps"][0], ["README.md"])
+        assert scoped["status"] == "verified", scoped
+        unscoped = verification.diff_scope_check(plan["steps"][0], ["pom.xml"])
+        assert unscoped["status"] == "not-verified", unscoped
     return {"archive": archive.name, "result": "PASS", "functions": [
-        "repository_inventory.detect_from_paths", "finding_model.validate_semantics"]}
+        "repository_inventory.detect_from_paths", "finding_model.validate_semantics",
+        "step_control.initialize_progress", "step_verification.diff_scope_check"]}
 
 
 def main():
