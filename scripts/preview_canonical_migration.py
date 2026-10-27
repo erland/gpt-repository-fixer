@@ -24,6 +24,8 @@ def main() -> int:
     cfg["instructions"]["canonical"] = "canonical/core.md"
     cfg["runtime"]["custom_gpt"]["enabled"] = False
     cfg["runtime"]["claude"]["enabled"] = True
+    cfg["runtime"]["plugin"].setdefault("templates", {})["readme"] = "templates/README.plugin.md.tpl"
+    cfg["runtime"]["claude"].setdefault("templates", {})["readme"] = "templates/README.claude.md.tpl"
     cfg["build"]["build_custom_gpt_zip"] = False
     cfg["build"]["build_claude_zip"] = True
     cfg["build"]["build_claude_skills_zip"] = True
