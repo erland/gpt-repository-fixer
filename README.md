@@ -6,7 +6,9 @@ Version **1.0.0** är den första stabila releasen. Canonical source finns under
 
 ## Projektstatus
 
-**Steg 1–29 är genomförda**. Repository Fixer 1.0.0 är fortsatt stabil. Migreringen till GPT Byggaren 1.5.0 har verifierat steg 25–26: stateful 1.5-kontrakt är införda och Chat ZIP, Custom GPT samt OpenCode byggs från samma canonical projekt. GitHub Actions reproducerar den lokala test-, build- och releasekedjan. Migreringen till GPT Byggaren 1.5.0 är slutförd och slutvaliderad. Chat ZIP, Custom GPT och OpenCode är stabila peer runtimes. OpenAI Plugin är nu implementerad som skills-first `equivalent_runtime_dependent` peer runtime; full fix-parity kräver writable workspace, persistent state och kompatibel code execution. Claude Projects är fortsatt bedömd men inte aktiverad.
+**Domänversion 1.0.0** är fortsatt den senast dokumenterade stabila versionen. Migrering till **GPT Byggaren Engine 1.6.33** är tekniskt aktiverad på PR #7, men **inte mergad eller releasad**. `gpt-project.yaml` använder `modular_skills` med gemensam `canonical/core.md` och tre Skills: repository-analysis, repository-remediation och repository-verification. Canonical 1.6.33 används versionsbundet för aktiv CI- och releasebyggning av **Chat, Plugin, Claude Projects, Claude Skills och OpenCode**. Historisk Custom GPT är inaktiverad.
+
+GitHub Actions har passerat på aktiveringscommiten `741e3c7` (push och PR). Paketintegritet och deterministiska funktionstester är verifierade; det innebär inte att externa värdmiljöers verktygsbehörigheter eller all runtimeparitet är verifierad. Migrationshygien och slutgranskning återstår före merge/release.
 
 ## Viktiga filer
 
@@ -15,7 +17,9 @@ Version **1.0.0** är den första stabila releasen. Canonical source finns under
 - `PROJECT.md` – målbild och avgränsning
 - `STATUS.md` – mänskligt läsbar status
 - `docs/development-plan.md` – full utvecklingsplan
-- `src/instructions/system.md` – canonical runtimeinstruktion
+- `canonical/core.md` – aktiv gemensam canonical instruktion
+- `canonical/skills/` – aktiva canonical Skill-beteenden
+- `src/instructions/system.md` – bevarad historisk instruktion för spårbarhet
 - `schemas/repository-inventory.schema.json` – inventeringskontrakt
 - `schemas/repository-finding.schema.json` – fynd- och evidenskontrakt
 - `knowledge/finding-model.md` – regler för klassificering, evidens och beslutspunkter
