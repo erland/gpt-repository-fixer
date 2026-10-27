@@ -2,13 +2,13 @@
 
 Repository Fixer är ett GPT-projekt som analyserar ett källkodsrepository, identifierar dokumentations- och repository-hygienproblem och producerar en evidensbaserad rapport samt en stegvis åtgärdsplan.
 
-Version **1.0.0** är den första stabila releasen. Canonical source finns under `src/`; genererade distributioner ska endast ligga under `build/` och `dist/` och ingår inte i projektets canonical source.
+Version **1.0.0** är den första stabila releasen. Aktiv canonical source är `canonical/core.md` och `canonical/skills/`; äldre material i `src/` bevaras för spårbarhet. Genererade distributioner ligger under `build/` och `dist/` och ingår inte i canonical source.
 
 ## Projektstatus
 
 **Domänversion 1.0.0** är fortsatt den senast dokumenterade stabila versionen. Migrering till **GPT Byggaren Engine 1.6.33** är tekniskt aktiverad på PR #7, men **inte mergad eller releasad**. `gpt-project.yaml` använder `modular_skills` med gemensam `canonical/core.md` och tre Skills: repository-analysis, repository-remediation och repository-verification. Canonical 1.6.33 används versionsbundet för aktiv CI- och releasebyggning av **Chat, Plugin, Claude Projects, Claude Skills och OpenCode**. Historisk Custom GPT är inaktiverad.
 
-GitHub Actions har passerat på aktiveringscommiten `741e3c7` (push och PR). Paketintegritet och deterministiska funktionstester är verifierade; det innebär inte att externa värdmiljöers verktygsbehörigheter eller all runtimeparitet är verifierad. Migrationshygien och slutgranskning återstår före merge/release.
+CI bygger och validerar fem aktiva distributioner med den versionslåsta motorn. Samtliga 12 dokumenterade legacy-regressionspunkter har nu motsvarande automatiska kontroller. Detta verifierar paketering och deterministisk domänlogik, inte externa värdmiljöers verktygsbehörigheter eller full hostparitet. Migreringen är fortfarande ommergad och ingen ny release har provkörts.
 
 ## Viktiga filer
 
@@ -54,20 +54,24 @@ GitHub Actions har passerat på aktiveringscommiten `741e3c7` (push och PR). Pak
 - `schemas/repository-final-report.schema.json` – maskinläsbar modell för slutrapporten
 - `templates/repository-final-report.md.tpl` – canonical mall för `repository-final-report.md`
 - `scripts/lib/final_report.py` – jämförelse- och renderingslogik för slutverifiering
-- `scripts/validate_chat_runtime.py` – fristående smoke-validering av Chat ZIP för analys, filoutput och återupptagning
-- `scripts/validate_custom_gpt_runtime.py` – fristående kontroll av Custom GPT-instruktion, Knowledge-paritet, capabilities och plattformsbegränsningar
-- `scripts/validate_release_readiness.py` – samlad kontroll av runtime-paritet, canonical source, plattformsbegränsningar och release readiness
+- `scripts/verify_canonical_chat_artifacts.py` och `scripts/verify_canonical_chat_resume.py` – aktuella tester av paketerad Chat-kod; äldre `validate_chat_runtime.py` bevaras för spårbarhet
+- `scripts/verify_canonical_instruction_sections.py` och `scripts/verify_canonical_resource_parity.py` – aktiv instruktions- och resurspålitlighet; äldre Custom GPT-validator är historisk
+- `scripts/verify_canonical_delivery.py` – aktiv kontroll av exakt sex ZIP-artefakter och checksummor; äldre `validate_release_readiness.py` är historisk
 
 ## Lokal validering
 
+Den aktiva distributionsbyggaren kommer från **GPT Byggaren Engine 1.6.33** och installeras från dess versionslåsta release. Äldre `scripts/build_distributions.py` och `scripts/validate_release_readiness.py` i en ren checkout är historiska implementationer och ska inte användas som bevis för den nya byggkedjan.
+
+Kör domäntester och projektspecifika kontroller direkt:
+
 ```bash
-python -m pytest -q
+python -m pip install pyyaml jsonschema pytest
+python -m pytest -q -p no:cacheprovider
 python scripts/lint_gpt_project.py --project-root .
-python scripts/project_hygiene.py --project-root .
-python scripts/build_distributions.py --project-root . --version 1.0.0
-python scripts/validate_distributions.py --project-root .
-python scripts/validate_release_readiness.py --project-root .
+python scripts/project_hygiene.py --project-root . --mode final
 ```
+
+För reproducerbar canonical byggning, använd de versionslåsta install/build/validate-stegen i `.github/workflows/ci.yml` eller granska CI-artefakterna. Efter installation av motorn gäller `python scripts/build_distributions.py --project-root . --version 0.0.0-ci`, `python scripts/validate_distributions.py --project-root .` och `python scripts/verify_canonical_delivery.py --project-root . --version 0.0.0-ci`.
 
 ## GitHub Actions
 
