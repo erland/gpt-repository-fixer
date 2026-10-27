@@ -114,6 +114,21 @@ jobs:
           print(json.dumps(report, ensure_ascii=False, indent=2))
           PY
 
+      - name: Probe original installer and five-runtime build in isolated migration copy
+        run: >-
+          python scripts/preview_canonical_migration.py
+          --project-root /tmp/repository-fixer-migration-preview
+          --engine-root /tmp/gpt-builder-engine
+
+      - name: Upload isolated canonical build diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-fixer-canonical-build-diagnostics
+          path: /tmp/repository-fixer-migration-preview/MIGRATION-BUILD-REPORT.json
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Upload migration preview report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
