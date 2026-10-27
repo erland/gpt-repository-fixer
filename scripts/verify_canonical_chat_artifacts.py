@@ -26,11 +26,17 @@ def verify(root: Path) -> dict:
     archive = root / "dist" / item["archive"]
     with tempfile.TemporaryDirectory(prefix="canonical-chat-artifacts-") as temporary:
         tmp = Path(temporary)
-        package = tmp / "packaged_chat_modules"
-        package.mkdir()
+        runtime = tmp / "runtime"
+        package = runtime / "scripts" / "packaged_chat_modules"
+        package.mkdir(parents=True)
         (package / "__init__.py").write_text("", encoding="utf-8")
         packaged = {}
         with zipfile.ZipFile(archive) as zf:
+            for name in zf.namelist():
+                if name.startswith("templates/") and name.endswith(".tpl"):
+                    destination = runtime / name
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(zf.read(name))
             for name in zf.namelist():
                 path = PurePosixPath(name)
                 if (len(path.parts) != 5 or path.parts[:2] != ("assistant", "skills")
@@ -55,7 +61,7 @@ def verify(root: Path) -> dict:
             "# Sample repository\n\nInstall with npm install.\n"
             "Build with npm run build and test with npm test.\n", encoding="utf-8")
         (repo / "pnpm-lock.yaml").write_text("lockfileVersion: 9.0\n", encoding="utf-8")
-        sys.path.insert(0, str(tmp))
+        sys.path.insert(0, str(runtime / "scripts"))
         try:
             e2e = importlib.import_module("packaged_chat_modules.e2e_analysis")
             result = e2e.analyze_repository(repo, "canonical-chat-smoke")
@@ -76,7 +82,7 @@ def verify(root: Path) -> dict:
             return {"status": "pass", "archive": archive.name,
                     "artifacts": sorted(artifacts), "packaged_scripts": len(packaged)}
         finally:
-            sys.path.remove(str(tmp))
+            sys.path.remove(str(runtime / "scripts"))
             for name in list(sys.modules):
                 if name == "packaged_chat_modules" or name.startswith("packaged_chat_modules."):
                     del sys.modules[name]
