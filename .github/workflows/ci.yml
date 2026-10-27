@@ -96,6 +96,11 @@ jobs:
           python scripts/verify_packaged_domain_smoke.py
           --project-root /tmp/repository-fixer-migration-preview
 
+      - name: Verify packaged report templates and runtime documentation
+        run: >-
+          python scripts/verify_packaged_report_templates.py
+          --project-root /tmp/repository-fixer-migration-preview
+
       - name: Validate policy parity across five canonical archives
         run: >-
           python scripts/validate_canonical_parity_preview.py
