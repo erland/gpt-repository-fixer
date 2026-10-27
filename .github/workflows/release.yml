@@ -91,6 +91,12 @@ jobs:
       - name: Validate five release distributions
         run: python scripts/validate_distributions.py --project-root .
 
+      - name: Gate exact canonical delivery archives and checksums
+        run: >-
+          python scripts/verify_canonical_delivery.py
+          --project-root .
+          --version '${{ steps.version.outputs.version }}'
+
       - name: Publish release assets
         env:
           GH_TOKEN: ${{ github.token }}
