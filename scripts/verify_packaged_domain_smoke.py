@@ -119,6 +119,53 @@ def check_archive(archive: Path):
         )
         assert blocked["steps"][0]["status"] == "blocked", blocked
         assert blocked["steps"][0]["verification_status"] == "failing"
+
+        # An unavailable required check must remain not-verified, never verified.
+        # It is permitted to complete the file change, but the uncertainty must
+        # survive in persistent progress and must not masquerade as a pass.
+        uncertain = step_control.initialize_progress(plan)
+        step_control.apply_user_action(plan, uncertain, "do", "step-1")
+        unverified = verification.assess_step_verification(
+            plan["steps"][0],
+            changed_paths=["README.md"],
+            results={"docs-consistency": {
+                "status": "not-verified",
+                "summary": "Documentation checker unavailable in this host",
+            }},
+        )
+        assert unverified["status"] == "not-verified", unverified
+        assert unverified["correction_required"] is False
+        assert any(c["name"] == "docs-consistency" and c["status"] == "not-verified"
+                   for c in unverified["checks"]), unverified
+        step_control.record_execution_result(
+            plan, uncertain, "step-1", success=True,
+            verification_status=unverified["status"],
+        )
+        assert uncertain["steps"][0]["status"] == "completed", uncertain
+        assert uncertain["steps"][0]["verification_status"] == "not-verified"
+        assert step_control.select_next_action(plan, uncertain)["action"] == "complete"
+
+        # A failing optional check is still a regression, even if all required
+        # checks passed; a blocked step must be corrected before ordinary work.
+        optional_failure = step_control.initialize_progress(plan)
+        step_control.apply_user_action(plan, optional_failure, "do", "step-1")
+        assessed = verification.assess_step_verification(
+            plan["steps"][0],
+            changed_paths=["README.md"],
+            results={
+                "docs-consistency": {"status": "verified"},
+                "extra-regression-check": {
+                    "status": "failing", "summary": "Unexpected regression",
+                },
+            },
+        )
+        assert assessed["status"] == "failing", assessed
+        step_control.record_execution_result(
+            plan, optional_failure, "step-1", success=True,
+            verification_status=assessed["status"],
+        )
+        assert optional_failure["steps"][0]["status"] == "blocked"
+        assert step_control.select_next_action(plan, optional_failure)["action"] == "correct-step"
     return {"archive": archive.name, "result": "PASS", "functions": [
         "repository_inventory.detect_from_paths", "finding_model.validate_semantics",
         "step_control.initialize_progress", "step_verification.diff_scope_check",
