@@ -30,7 +30,7 @@
       "replacement": "verified",
       "canonical_test": "scripts/verify_canonical_chat_resume.py",
       "canonical_gate": ".github/workflows/ci.yml",
-      "scope_note": "Canonical Chat ZIP packaged step_control resumes an in-progress step after file persistence, then saves verified completion; legacy Chat analysis and plan artifact checks remain pending."
+      "scope_note": "Canonical Chat ZIP packaged step_control resumes an in-progress step after file persistence, then saves verified completion; Chat analysis and plan artifact generation are separately verified by scripts/verify_canonical_chat_artifacts.py."
     },
     {
       "id": "plugin-state-authority",
@@ -57,7 +57,10 @@
       "source": "scripts/validate_openai_plugin_runtime.py",
       "needle": "verification fallback weakened",
       "requirement": "Plugin preserves failing/not-verified semantics",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "scripts/verify_packaged_domain_smoke.py",
+      "canonical_gate": ".github/workflows/ci.yml",
+      "scope_note": "Real packaged Plugin and Claude Skills verification and step-control functions exercised: failing required/optional checks block and request correction; unavailable checks remain not-verified (may complete a successful file change with explicit uncertainty), never silently verified. Host execution not covered."
     },
     {
       "id": "plugin-github-fallback",
