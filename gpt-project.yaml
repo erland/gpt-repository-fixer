@@ -52,7 +52,8 @@ skills:
       name: Repository Analysis
       description: Evidensbaserad inventering och komplett analys av repositoryn.
       source: canonical/skills/repository-analysis/behavior.md
-      assets: []
+      assets:
+        - templates/repository-analysis.md.tpl
       references:
         - knowledge/repository-inventory.md
         - knowledge/analysis-completeness.md
@@ -82,7 +83,8 @@ skills:
       name: Repository Remediation
       description: Fullständig åtgärdsplan och kontrollerad ZIP-/GitHub-ändring.
       source: canonical/skills/repository-remediation/behavior.md
-      assets: []
+      assets:
+        - templates/repository-fix-plan.md.tpl
       references:
         - knowledge/fix-plan.md
         - knowledge/interactive-step-control.md
@@ -99,7 +101,8 @@ skills:
       name: Repository Verification
       description: Stegverifiering, nyanalys och slutrapport.
       source: canonical/skills/repository-verification/behavior.md
-      assets: []
+      assets:
+        - templates/repository-final-report.md.tpl
       references:
         - knowledge/step-verification.md
         - knowledge/final-verification.md
