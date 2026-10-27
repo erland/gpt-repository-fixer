@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import sys
 import tempfile
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -26,7 +27,12 @@ def load_from_archive(archive: Path, skill: str, basename: str, workspace: Path)
     spec = importlib.util.spec_from_file_location(f"packaged_{skill}_{basename[:-3]}", destination)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
-    spec.loader.exec_module(module)
+    sys.modules[spec.name] = module
+    try:
+        spec.loader.exec_module(module)
+    except Exception:
+        sys.modules.pop(spec.name, None)
+        raise
     return module
 
 
