@@ -88,6 +88,9 @@ jobs:
       - name: Validate five release distributions
         run: python scripts/validate_distributions.py --project-root .
 
+      - name: Verify actual release ZIP report renderers and documentation
+        run: python scripts/verify_packaged_report_templates.py --project-root .
+
       - name: Gate exact canonical delivery archives and checksums
         run: >-
           python scripts/verify_canonical_delivery.py

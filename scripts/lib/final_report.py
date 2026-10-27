@@ -5,6 +5,26 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+def _load_default_template(filename: str) -> str:
+    """Find a source-checkout template or a packaged Skill asset.
+
+    The distribution engine copies scripts under <skill>/scripts/ and explicit
+    templates under <skill>/assets/. Source checkouts keep templates/ at root.
+    """
+    script = Path(__file__).resolve()
+    candidates = (
+        script.parent.parent / "assets" / filename,
+        script.parents[2] / "templates" / filename,
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.read_text(encoding="utf-8")
+    raise FileNotFoundError(
+        f"Report template {filename!r} is missing; searched: "
+        + ", ".join(str(path) for path in candidates)
+    )
+
+
 from .finding_model import CLASS_LABELS, validate_semantics
 
 NEGATIVE = {"must-fix", "recommended", "consider"}
@@ -208,7 +228,7 @@ def render_final_report(model: dict[str, Any], template_text: str | None = None)
         f"**{len(model['remaining'])}** kvarstår och **{len(model['new_findings'])}** nya fynd har identifierats."
     )
     limitations = "\n".join(f"- {x}" for x in model.get("limitations", [])) or "- Inga särskilda kvarstående begränsningar registrerades."
-    template = template_text or Path(__file__).resolve().parents[2].joinpath("templates/repository-final-report.md.tpl").read_text(encoding="utf-8")
+    template = template_text if template_text is not None else _load_default_template("repository-final-report.md.tpl")
     replacements = {
         "REPOSITORY_NAME": model["repository_name"],
         "SUMMARY": summary,

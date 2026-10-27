@@ -96,6 +96,11 @@ jobs:
           python scripts/verify_packaged_domain_smoke.py
           --project-root /tmp/repository-fixer-migration-preview
 
+      - name: Verify packaged report templates and runtime documentation
+        run: >-
+          python scripts/verify_packaged_report_templates.py
+          --project-root /tmp/repository-fixer-migration-preview
+
       - name: Validate policy parity across five canonical archives
         run: >-
           python scripts/validate_canonical_parity_preview.py
@@ -150,6 +155,9 @@ jobs:
           set -euo pipefail
           python scripts/build_distributions.py --project-root "$GITHUB_WORKSPACE" --version 0.0.0-ci
           python scripts/validate_distributions.py --project-root "$GITHUB_WORKSPACE"
+
+      - name: Verify final distribution ZIP report renderers
+        run: python scripts/verify_packaged_report_templates.py --project-root .
 
       - name: Gate exact canonical delivery archives and checksums
         run: >-

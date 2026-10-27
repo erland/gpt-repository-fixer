@@ -35,8 +35,9 @@ En publik GitHub-länk kan analyseras när repositoryinnehållet kan läsas. Skr
 - `assistant/policies/` – fördjupade runtimepolicies
 - `knowledge/` – analys- och workflowregler
 - `schemas/` – maskinläsbara modeller
-- `scripts/` – deterministiska analys-, rapport- och workflowhjälpare
-- `templates/` – mallar för rapport, plan, progress och slutrapport
+- `assistant/skills/<skill-id>/scripts/` – körbara Python-resurser för respektive Skill
+- `assistant/skills/<skill-id>/assets/` – rapportmallar som respektive Skill kan använda direkt
+- `templates/` – övriga mallar i ZIP-roten
 
 ## Version
 
