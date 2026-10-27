@@ -1,33 +1,58 @@
-# Aktiveringsgate – GPT Byggaren 1.6.33
+# Aktiveringsgate – Repository Fixer → GPT Byggaren 1.6.33
 
 Datum: 2026-10-27  
-Gren: `migration/gpt-builder-1.6.33-modular-sources` (PR #7).  
-Status: **BLOCKERAD för aktivering; staged canonical Skills kan granskas och testas i legacy-läge.**
+Branch: `migration/gpt-builder-1.6.33-modular-sources` / PR #7  
+Aktuell fas: **Aktiveringsförberedelse (motor och fem distributioner verifierade i separat kopia; originalkonfigurationen ännu legacy).**
 
-## Utförd aktiveringskontroll
+## Varför migrationen inte är färdig
 
-En tillfällig konfigurationsändring satte `instructions.mode: modular_skills`, nya `instructions.core`/`canonical`, inaktiverade historisk Custom GPT och registrerade `chat`, `plugin`, `claude_project`, `claude_skills`, `opencode` som fem aktiva runtime-mål.
+Den aktiva `gpt-project.yaml` pekar fortfarande på `src/instructions/system.md`,
+registrerar historisk Custom GPT och använder äldre distributions-/paritetsvalidatorer.
+Den kanoniska motorn från GPT Byggaren 1.6.33 används ännu endast mot den
+isolerade kopian i jobbet `canonical-engine-preflight`.
 
-GitHub Actions körning för commit `307521a5863bb11115cdb96b4005836e65a93727`: **188 PASS, 5 FAIL**. Detaljer: [workflowkörning](https://github.com/erland/gpt-repository-fixer/actions/runs/40451277554).
+## Verifierat inom migrationsspåret
 
-| Fallerande kontroll | Faktisk orsak / nästa åtgärd |
-| --- | --- |
-| `tests/test_custom_gpt_distribution.py` | Historiskt Custom GPT-test bygger och validerar en gammal runtime. Flytta relevanta domänassertioner till Chat/Plugin/Claude Skills innan det pensioneras. |
-| `tests/test_modular_canonical_sources.py` | Övergångsgard krävde legacy-config; ändra gard först när hela nya byggkedjan ersatts. |
-| `tests/test_release_readiness.py` | Legacy-validator förutsätter exakt den gamla peer-listan inklusive Custom GPT. Ersätt med kanonisk 1.6.33-releasekontroll. |
-| `tests/test_runtime_parity.py` (två fall) | Legacy-paritetsvalidator kräver gammal runtime-lista; den nya listan innehåller Claude Skills. Ersätt med canonical parity och explicita hostbegränsningar. |
+- Canonical `core.md` och tre ansvarsmässigt separerade Skills finns.
+- Originalmotorn 1.6.33 laddas versionsbundet och klarar sitt självtest.
+- Motorns installation, byggning och distributionsvalidering passerar i isolerad kopia.
+- Fem distributioner byggs: Chat, Plugin, Claude Projects, Claude Skills och OpenCode.
+- Paketerade resurser, Knowledge, tillståndsövergångar och grundläggande runtimekontrakt valideras deterministiskt.
+- De gamla testerna körs fortfarande mot legacy-läget och ska inte ses som bevis för den nya aktiva byggkedjan.
+- Preflightens installation/build/validate/innehållskontroll är nu en **blockerande CI-gate**, inte bara loggad diagnostik.
 
-**Åtgärd:** Aktiv konfiguration och testgard återställdes till senaste gröna tillstånd (commit `815681d`) på samma PR. Canonical core, tre Skill-beteenden och explicita preliminära resurser behålls. Dokumentet markerar inte de nya distributionerna som verifierade.
+## Återstående arbete – håll detta som migrationsplan
 
-## Säker genomförandeordning
+1. **Aktivera projektmodellen:** Flytta den prövade isolerade konfigurationen till
+   aktiva `gpt-project.yaml`: `instructions.mode: modular_skills`,
+   `canonical/core.md`, fem runtime-mål, `custom_gpt.enabled: false`.
+   Utgå från redan beprövade inställningar i
+   `scripts/preview_canonical_migration.py`; skapa ingen ny builder.
+2. **Byt aktiv CI- och byggkedja:** Installera den pinade originalmotorn 1.6.33
+   och låt lint, build och validatorer köra på **projektroten**, inte bara kopian.
+   Flytta/ersätt legacy-tester som förutsätter historisk Custom GPT och äldre
+   runtime-lista, men bevara domän- och regressionsskydd.
+3. **Verifiera aktiv leverans:** Kräva grön pytest, kanonisk lint, fem ZIP,
+   distributionsvalidering och innehållsgates. Dokumentera begränsningar hos
+   faktiska hostmiljöer; pakettest är inte värdmiljötest.
+4. **Dokumentation och hygiene:** Uppdatera README, PROJECT/STATUS/plan där de
+   finns, CI-/versionsreferenser och migrationschecklista; inventera gamla
+   builder/lint/validation-skript och ta bara bort de faktiskt ersatta.
+5. **Slutverifiering:** Kontrollera att exakt fem aktuella runtime-artefakter,
+   ett komplett projekt och verifieringsrapport kan levereras. Först därefter
+   rekommenderas merge/release.
 
-1. Kör originalmotorn 1.6.33:s `scripts/selftest_distribution_engine.py --source <engine-root>` med verifierad versionslåst motor.
-2. Uppdatera/ersätt de äldre verktygstesterna så att de verifierar samma domänbeteenden i de fem aktuella distributionerna, utan att dölja fel med skip eller ändrade förväntningar.
-3. Ändra `gpt-project.yaml` atomärt för fem fullständiga runtime-mål, `modular_skills`, core och explicita verifierade resurser.
-4. Kör motorns oförändrade `install_distribution_engine.py`, lint, build, `validate_distributions.py`, `validate_portable_skills.py` samt projektspecifik pytest. Kontrollera Python-importer och filer i isolerade Skill-arkiv.
-5. Kontrollera hostkrav separat: Plugin/Claude kan sakna nödvändig Python-exekvering eller skrivbar/persistent arbetsyta; paketvalidering bevisar inte full funktionell paritet.
-6. Först efter gröna gates: CI/release-omläggning, README/PROJECT/STATUS/plan och säker städning av faktiskt ersatta scripts.
+## Skilj på verifieringsnivåer
 
-## Viktig avgränsning
+**Grönt i isolerad kopia** betyder att canonical-motorn kan producera och
+validera de fem distributionerna med tillfällig migration-konfiguration.
+Det betyder inte att den gamla byggkedjan ersatts i projektet, att hostens
+Plugins/Claude kan köra Python eller att full funktionell paritet är bevisad.
 
-Den separata GPT Byggaren-motorn är ett byggberoende och får inte ersätta `scripts/lib/` (Repository Fixers analys- och åtgärdskod). Originalets föråldrade tester ska inte raderas eller hoppas över förrän motsvarande regressionsskydd finns.
+Historisk aktiveringsprovning (`307521a`) gav 188 PASS och 5 FAIL i legacy-tester
+som fortfarande förutsatte gamla runtime-listan. Vi ska därför utföra
+en samordnad aktivering av både projektkonfiguration och CI/testprofil,
+inte enbart slå om `instructions.mode`.
+
+Nästa konkreta steg: **genomför punkt 1–2 på PR #7 och rätta faktiskt
+påvisade CI-fel innan aktivering betraktas som genomförd.**
