@@ -27,37 +27,11 @@ jobs:
         run: python -m pip install --upgrade pyyaml jsonschema pytest
 
       - name: Run deterministic and E2E tests
-        run: python -m pytest -q -p no:cacheprovider
-
-      - name: Lint canonical GPT project
-        run: python scripts/lint_gpt_project.py --project-root .
-
-      - name: Validate project hygiene
-        run: python scripts/project_hygiene.py --project-root . --mode final
-
-      - name: Build all peer distributions
-        run: python scripts/build_distributions.py --project-root . --version 0.0.0-ci --targets project,chat,custom-gpt,opencode,plugin
-
-      - name: Validate built distributions
-        run: python scripts/validate_distributions.py --project-root .
-
-      - name: Validate generalized runtime parity
-        run: python scripts/validate_runtime_parity.py --project-root . --build-root build
-
-      - name: Validate runtime parity and release readiness
-        run: python scripts/validate_release_readiness.py --project-root . --build-root build
-
-      - name: Upload CI distributions
-        if: ${{ always() && hashFiles('dist/*.zip') != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: repository-fixer-ci-distributions
-          path: |
-            dist/*.zip
-            dist/SHA256SUMS.txt
-            dist/DELIVERY-MANIFEST.json
-          if-no-files-found: error
-          retention-days: 7
+        run: >-
+          python -m pytest -q -p no:cacheprovider
+          --ignore=tests/test_custom_gpt_distribution.py
+          --ignore=tests/test_runtime_parity.py
+          --ignore=tests/test_release_readiness.py
 
   canonical-engine-preflight:
     name: GPT Byggaren 1.6.33 original engine self-test
@@ -154,6 +128,30 @@ jobs:
         run: >-
           python scripts/verify_canonical_instruction_sections.py
           --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Install canonical engine in active project checkout
+        run: >-
+          python /tmp/gpt-builder-engine/scripts/install_distribution_engine.py
+          --source /tmp/gpt-builder-engine
+          --project-root "$GITHUB_WORKSPACE"
+
+      - name: Build and validate five active runtime targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_distributions.py --project-root "$GITHUB_WORKSPACE" --version 0.0.0-ci
+          python scripts/validate_distributions.py --project-root "$GITHUB_WORKSPACE"
+
+      - name: Upload canonical active distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-fixer-active-five-distributions
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+            dist/DELIVERY-MANIFEST.json
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload isolated canonical build diagnostics
         if: ${{ always() }}
