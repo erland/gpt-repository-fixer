@@ -1,4 +1,4 @@
-"""Blocking delivery gate: exactly five runtime ZIPs plus one project ZIP."""
+"""Blocking delivery gate: five runtimes, project ZIP, and optional Engine ZIP."""
 import argparse
 import hashlib
 import json
@@ -17,6 +17,8 @@ def verify(root: Path, version: str) -> None:
     assert set(targets) == set(enabled), f"Unexpected configured targets: {set(targets)}"
     for key in enabled:
         expected.add(targets[key]["filename_pattern"].replace("<project-id>", project).replace("<version>", version))
+    if cfg.get("engine", {}).get("enabled"):
+        expected.add(f"{project}-engine-{version}.zip")
     actual = {p.name for p in dist.glob("*.zip")}
     assert actual == expected, f"Wrong ZIP set: missing={expected-actual}, extra={actual-expected}"
     checksums = {}
