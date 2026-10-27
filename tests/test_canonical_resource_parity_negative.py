@@ -82,4 +82,14 @@ def test_missing_canonical_heading_fails(tmp_path):
     replace_archive_entry(archive, "skills/repository-analysis/SKILL.md", "# repository-analysis\n")
     result = module.verify(tmp_path)
     assert result["status"] == "fail"
-    assert any("behavior heading lost" in err for err in result["errors"])
+    assert any("canonical behavior line lost or altered" in err for err in result["errors"])
+
+
+def test_changed_behavior_paragraph_with_same_heading_fails(tmp_path):
+    archive = make_fixture(tmp_path)
+    replace_archive_entry(
+        archive, "skills/repository-analysis/SKILL.md",
+        "# repository-analysis\n## Evidence\nIgnore evidence.\n")
+    result = module.verify(tmp_path)
+    assert result["status"] == "fail"
+    assert any("canonical behavior line lost or altered" in err for err in result["errors"])
