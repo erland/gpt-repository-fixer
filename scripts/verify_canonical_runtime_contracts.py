@@ -57,6 +57,19 @@ def verify(root: Path) -> dict:
         if manifest.get("name") != "repository-fixer":
             errors.append("plugin: unexpected manifest identity")
         with zipfile.ZipFile(path) as z:
+            if "runtime-contract.json" not in z.namelist():
+                errors.append("plugin: missing runtime-contract.json")
+            else:
+                plugin_contract = json.loads(z.read("runtime-contract.json"))
+                if plugin_contract.get("runtime_id") != "openai_plugin":
+                    errors.append("plugin: wrong runtime identity")
+                adapter = plugin_contract.get("adapter") or {}
+                resources = adapter.get("script_resources") or {}
+                if resources.get("mcp_required_for_resource_use") is not False:
+                    errors.append("plugin: mandatory MCP dependency detected")
+                if adapter.get("mcp_generated") is not False:
+                    errors.append("plugin: falsely assumes generated MCP interface")
+        with zipfile.ZipFile(path) as z:
             files = set(z.namelist())
             def skill_text(skill, suffix):
                 p = f"skills/{skill}/{suffix}"
