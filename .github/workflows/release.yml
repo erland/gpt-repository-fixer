@@ -88,6 +88,26 @@ jobs:
       - name: Validate five release distributions
         run: python scripts/validate_distributions.py --project-root .
 
+      - name: Verify standalone Repository Fixer Engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/engine_selftest.py
+          python - <<'PY'
+          import json, pathlib, subprocess, sys, tempfile, zipfile
+          archives = list(pathlib.Path("dist").glob("repository-fixer-engine-*.zip"))
+          assert len(archives) == 1, archives
+          with tempfile.TemporaryDirectory() as temp:
+              with zipfile.ZipFile(archives[0]) as z:
+                  for name in z.namelist():
+                      parts = pathlib.PurePosixPath(name)
+                      assert not parts.is_absolute() and ".." not in parts.parts, name
+                  z.extractall(temp)
+              manifest = json.loads((pathlib.Path(temp) / "engine-package.json").read_text())
+              assert manifest["engine_id"] == "repository-fixer"
+              subprocess.run([sys.executable, "scripts/engine_selftest.py"], cwd=temp, check=True)
+          PY
+
       - name: Verify actual release ZIP report renderers and documentation
         run: python scripts/verify_packaged_report_templates.py --project-root .
 
