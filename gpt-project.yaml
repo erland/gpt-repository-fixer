@@ -42,7 +42,28 @@ model_robustness:
   model_compatibility:
     scenarios: evals/model-compatibility/
 instructions:
+  # Transitional declaration: legacy builder still reads canonical below.
+  # Activate mode: modular_skills only with canonical Engine 1.6.33.
   canonical: src/instructions/system.md
+  migration_target:
+    mode: modular_skills
+    core: canonical/core.md
+    canonical: canonical/core.md
+skills:
+  # Skill sources are staged and traceable; resource isolation is not yet enabled.
+  definitions:
+    - id: repository-analysis
+      name: Repository Analysis
+      description: Evidensbaserad inventering och komplett analys av repositoryn.
+      source: canonical/skills/repository-analysis/behavior.md
+    - id: repository-remediation
+      name: Repository Remediation
+      description: Fullständig åtgärdsplan och kontrollerad ZIP-/GitHub-ändring.
+      source: canonical/skills/repository-remediation/behavior.md
+    - id: repository-verification
+      name: Repository Verification
+      description: Stegverifiering, nyanalys och slutrapport.
+      source: canonical/skills/repository-verification/behavior.md
   core_contract:
     enabled: true
     required_markers:
