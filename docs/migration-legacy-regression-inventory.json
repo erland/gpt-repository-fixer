@@ -28,7 +28,10 @@
       "source": "scripts/validate_openai_plugin_runtime.py",
       "needle": "workspace_file must remain state authority",
       "requirement": "Plugin state authority remains a persistent workspace file",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "tests/test_canonical_runtime_contracts_negative.py",
+      "canonical_gate": "scripts/verify_canonical_runtime_contracts.py",
+      "scope_note": "Packaged Plugin Skill requires file state over chat memory; Claude/OpenCode also enforce persistent workspace_file in runtime contract."
     },
     {
       "id": "plugin-no-mcp-required",
@@ -90,7 +93,10 @@
       "source": "scripts/validate_custom_gpt_runtime.py",
       "needle": "Instruction must retain GitHub/PR workflow semantics",
       "requirement": "Keep GitHub branch and PR guardrails in current runtimes",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "tests/test_canonical_runtime_contracts_negative.py",
+      "canonical_gate": "scripts/verify_canonical_runtime_contracts.py",
+      "scope_note": "Packaged Plugin remediation Skill and reference require authorized GitHub write and no direct default-branch edits; separate host execution remains unverified."
     }
   ]
 }
