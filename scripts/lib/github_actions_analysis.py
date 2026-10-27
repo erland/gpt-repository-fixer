@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-from scripts.lib.build_test_analysis import analyze_build_test
+from .build_test_analysis import analyze_build_test
 
 
 def _evidence(kind: str, path: str | None, observation: str, related_paths: list[str] | None = None) -> dict:

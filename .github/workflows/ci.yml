@@ -27,34 +27,161 @@ jobs:
         run: python -m pip install --upgrade pyyaml jsonschema pytest
 
       - name: Run deterministic and E2E tests
-        run: python -m pytest -q -p no:cacheprovider
+        run: >-
+          python -m pytest -q -p no:cacheprovider
 
-      - name: Lint canonical GPT project
-        run: python scripts/lint_gpt_project.py --project-root .
+  canonical-engine-preflight:
+    name: GPT Byggaren 1.6.33 original engine self-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Validate project hygiene
-        run: python scripts/project_hygiene.py --project-root . --mode final
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-      - name: Build all peer distributions
-        run: python scripts/build_distributions.py --project-root . --version 0.0.0-ci --targets project,chat,custom-gpt,opencode,plugin
+      - name: Install canonical engine test dependencies
+        run: python -m pip install pyyaml jsonschema
 
-      - name: Validate built distributions
-        run: python scripts/validate_distributions.py --project-root .
+      - name: Download pinned canonical engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            --output /tmp/gpt-byggaren-engine-1.6.33.zip \
+            https://github.com/erland/gpt-byggaren/releases/download/v1.6.33/gpt-byggaren-engine-1.6.33.zip
+          python - <<'PY'
+          import pathlib, zipfile
+          path = pathlib.Path('/tmp/gpt-byggaren-engine-1.6.33.zip')
+          with zipfile.ZipFile(path) as archive:
+              for item in archive.infolist():
+                  parts = pathlib.PurePosixPath(item.filename)
+                  if parts.is_absolute() or '..' in parts.parts or not parts.parts:
+                      raise ValueError(f'Unsafe engine archive entry: {item.filename}')
+              archive.extractall('/tmp/gpt-builder-engine')
+          PY
 
-      - name: Validate generalized runtime parity
-        run: python scripts/validate_runtime_parity.py --project-root . --build-root build
+      - name: Verify original engine integrity and smoke build
+        run: >-
+          python /tmp/gpt-builder-engine/scripts/selftest_distribution_engine.py
+          --source /tmp/gpt-builder-engine
 
-      - name: Validate runtime parity and release readiness
-        run: python scripts/validate_release_readiness.py --project-root . --build-root build
+      - name: Create isolated legacy migration assessment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python /tmp/gpt-builder-engine/scripts/migrate_legacy_copy.py \
+            --source "$GITHUB_WORKSPACE" \
+            --destination /tmp/repository-fixer-migration-preview
+          test -f /tmp/repository-fixer-migration-preview/MIGRATION-REPORT.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/repository-fixer-migration-preview/MIGRATION-REPORT.json').read_text())
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
 
-      - name: Upload CI distributions
-        if: ${{ always() && hashFiles('dist/*.zip') != '' }}
+      - name: Probe original installer and five-runtime build in isolated migration copy
+        run: >-
+          python scripts/preview_canonical_migration.py
+          --project-root /tmp/repository-fixer-migration-preview
+          --engine-root /tmp/gpt-builder-engine
+
+      - name: Exercise packaged Repository Fixer domain functions
+        run: >-
+          python scripts/verify_packaged_domain_smoke.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Validate policy parity across five canonical archives
+        run: >-
+          python scripts/validate_canonical_parity_preview.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Verify byte-level canonical Skill resource parity
+        run: >-
+          python scripts/verify_canonical_resource_parity.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Verify complete canonical Knowledge coverage
+        run: >-
+          python scripts/verify_canonical_knowledge_coverage.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Verify canonical runtime contracts and adapter identities
+        run: >-
+          python scripts/verify_canonical_runtime_contracts.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Generate Chat analysis and plan from packaged canonical scripts
+        run: >-
+          python scripts/verify_canonical_chat_artifacts.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Verify persisted resume in actual Chat distribution
+        run: >-
+          python scripts/verify_canonical_chat_resume.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Verify five-runtime canonical instruction sections
+        run: >-
+          python scripts/verify_canonical_instruction_sections.py
+          --project-root /tmp/repository-fixer-migration-preview
+
+      - name: Install canonical engine in active project checkout
+        run: >-
+          python /tmp/gpt-builder-engine/scripts/install_distribution_engine.py
+          --source /tmp/gpt-builder-engine
+          --project-root "$GITHUB_WORKSPACE"
+
+      - name: Run canonical lint and final source hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/lint_gpt_project.py --project-root .
+          python scripts/project_hygiene.py --project-root . --mode final
+
+      - name: Build and validate five active runtime targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_distributions.py --project-root "$GITHUB_WORKSPACE" --version 0.0.0-ci
+          python scripts/validate_distributions.py --project-root "$GITHUB_WORKSPACE"
+
+      - name: Gate exact canonical delivery archives and checksums
+        run: >-
+          python scripts/verify_canonical_delivery.py
+          --project-root .
+          --version 0.0.0-ci
+
+      - name: Upload canonical active distributions
         uses: actions/upload-artifact@v4
         with:
-          name: repository-fixer-ci-distributions
+          name: repository-fixer-active-five-distributions
           path: |
             dist/*.zip
             dist/SHA256SUMS.txt
             dist/DELIVERY-MANIFEST.json
           if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload isolated canonical build diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-fixer-canonical-build-diagnostics
+          path: /tmp/repository-fixer-migration-preview/MIGRATION-BUILD-REPORT.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload migration preview report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-fixer-migration-preview
+          path: /tmp/repository-fixer-migration-preview/MIGRATION-REPORT.json
+          if-no-files-found: warn
           retention-days: 7

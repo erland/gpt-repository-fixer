@@ -42,7 +42,76 @@ model_robustness:
   model_compatibility:
     scenarios: evals/model-compatibility/
 instructions:
-  canonical: src/instructions/system.md
+  mode: modular_skills
+  core: canonical/core.md
+  canonical: canonical/core.md
+skills:
+  resource_policy: explicit
+  definitions:
+    - id: repository-analysis
+      name: Repository Analysis
+      description: Evidensbaserad inventering och komplett analys av repositoryn.
+      source: canonical/skills/repository-analysis/behavior.md
+      assets: []
+      references:
+        - knowledge/repository-inventory.md
+        - knowledge/analysis-completeness.md
+        - knowledge/finding-model.md
+        - knowledge/readme-analysis.md
+        - knowledge/markdown-documentation-analysis.md
+        - knowledge/license-analysis.md
+        - knowledge/repository-hygiene.md
+        - knowledge/build-test-analysis.md
+        - knowledge/github-actions-analysis.md
+        - knowledge/analysis-report.md
+        - knowledge/github-read-workflow.md
+        - knowledge/zip-workflow.md
+      scripts:
+        - scripts/lib/repository_inventory.py
+        - scripts/lib/readme_analysis.py
+        - scripts/lib/markdown_analysis.py
+        - scripts/lib/license_analysis.py
+        - scripts/lib/hygiene_analysis.py
+        - scripts/lib/build_test_analysis.py
+        - scripts/lib/github_actions_analysis.py
+        - scripts/lib/finding_model.py
+        - scripts/lib/analysis_report.py
+        - scripts/lib/github_read_workflow.py
+        - scripts/lib/zip_workflow.py
+    - id: repository-remediation
+      name: Repository Remediation
+      description: Fullständig åtgärdsplan och kontrollerad ZIP-/GitHub-ändring.
+      source: canonical/skills/repository-remediation/behavior.md
+      assets: []
+      references:
+        - knowledge/fix-plan.md
+        - knowledge/interactive-step-control.md
+        - knowledge/github-write-workflow.md
+        - knowledge/zip-workflow.md
+        - knowledge/step-verification.md
+      scripts:
+        - scripts/lib/fix_plan.py
+        - scripts/lib/step_control.py
+        - scripts/lib/github_write_workflow.py
+        - scripts/lib/zip_workflow.py
+        - scripts/lib/step_verification.py
+    - id: repository-verification
+      name: Repository Verification
+      description: Stegverifiering, nyanalys och slutrapport.
+      source: canonical/skills/repository-verification/behavior.md
+      assets: []
+      references:
+        - knowledge/step-verification.md
+        - knowledge/final-verification.md
+        - knowledge/analysis-completeness.md
+        - knowledge/analysis-report.md
+      scripts:
+        - scripts/lib/step_verification.py
+        - scripts/lib/final_report.py
+        - scripts/lib/e2e_analysis.py
+        - scripts/lib/analysis_report.py
+        - scripts/lib/repository_inventory.py
+        - scripts/lib/finding_model.py
   core_contract:
     enabled: true
     required_markers:
@@ -78,7 +147,7 @@ runtime:
     entrypoint: START-HERE.md
     start_here_template: templates/START-HERE.chat.md.tpl
   custom_gpt:
-    enabled: true
+    enabled: false
     instruction:
       mode: identical
       max_characters: 8000
@@ -92,7 +161,14 @@ runtime:
       readme: templates/README.custom-gpt.md.tpl
       compatibility: templates/COMPATIBILITY.md.tpl
   claude:
-    enabled: false
+    enabled: true
+    mode: claude_project
+    project:
+      instructions: project/instructions.md
+      knowledge: project/knowledge
+      runtime_contract: project/runtime-contract.json
+    templates:
+      readme: templates/README.claude.md.tpl
   opencode:
     enabled: true
     mode: opencode_workspace
@@ -110,6 +186,18 @@ runtime:
       directory: .opencode/skills
   plugin:
     enabled: true
+    layout:
+      manifest_file: plugin.json
+      skills: skills
+      references: references
+      assets: assets
+      scripts: scripts
+    templates:
+      readme: templates/README.plugin.md.tpl
+    validation:
+      require_manifest: true
+      require_skill: true
+      require_skill_frontmatter: true
     role: peer_distribution
     mode: skills_first
     skill_id: repository-fixer
@@ -258,13 +346,14 @@ build:
   create_checksums: true
   build_project_zip: true
   build_chat_zip: true
-  build_custom_gpt_zip: true
-  build_claude_zip: false
+  build_custom_gpt_zip: false
+  build_claude_zip: true
+  build_claude_skills_zip: true
   build_opencode_zip: true
   build_plugin_zip: true
 
 build_system:
-  targets: [project, chat, custom-gpt, opencode, plugin]
+  targets: [project, chat, plugin, claude_project, claude_skills, opencode]
   runtime_targets:
     chat:
       runtime_id: chatgpt_chat
@@ -272,12 +361,6 @@ build_system:
       builder: chat
       artifact_type: chat_zip
       filename_pattern: <project-id>-chat-v<version>.zip
-    custom-gpt:
-      runtime_id: chatgpt_custom
-      runtime_key: custom_gpt
-      builder: custom_gpt
-      artifact_type: custom_gpt_zip
-      filename_pattern: <project-id>-custom-gpt-v<version>.zip
     opencode:
       runtime_id: opencode
       runtime_key: opencode
@@ -290,14 +373,26 @@ build_system:
       builder: plugin
       artifact_type: plugin_zip
       filename_pattern: <project-id>-plugin-v<version>.zip
+    claude_project:
+      runtime_id: claude_project
+      runtime_key: claude
+      builder: claude
+      artifact_type: claude_project_zip
+      filename_pattern: <project-id>-claude-project-v<version>.zip
+    claude_skills:
+      runtime_id: claude_skills
+      runtime_key: claude
+      builder: claude_skills
+      artifact_type: claude_skills_zip
+      filename_pattern: <project-id>-claude-skills-v<version>.zip
 
 runtime_parity:
   registered_runtimes:
     - chatgpt_chat
-    - chatgpt_custom
-    - claude_project
-    - opencode
     - openai_plugin
+    - claude_project
+    - claude_skills
+    - opencode
   compared_categories:
     - behavior
     - capability

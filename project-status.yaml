@@ -47,13 +47,14 @@ progress:
   - 28
   - 29
 state:
-  overall: pass
+  overall: in_progress
   blocking_issues: []
-  warnings: []
+  warnings:
+  - Migreringen till GPT Byggaren 1.6.33 har 12/12 regressionsgates; inväntar slutlig CI, mergegranskning och merge av PR #7.
 next_step:
-  recommended: null
-  title: OpenAI Plugin peer-runtime verifierad
-  reason: Samtliga steg 1–29 är verifierade och Plugin ingår i den gröna releasekedjan.
+  recommended: migration_final_review
+  title: Verifiera slutlig CI och mergevillkor för PR #7
+  reason: Fem runtimes och samtliga 12 regressionskontroller är verifierade; senaste CI och PR-villkor ska granskas före merge.
 resume:
   supported: true
   required_files:
@@ -62,4 +63,4 @@ resume:
   - docs/development-plan.md
   - STATUS.md
   - PROJECT.md
-  human_readable_status: Steg 1–29 är verifierade. OpenAI Plugin är aktiv som equivalent_runtime_dependent peer runtime och projektet är redo att mergeas och releasas.
+  human_readable_status: Ursprungliga steg 1–29 är verifierade. Migrering till GPT Byggaren 1.6.33 har aktiv fem-runtime-byggkedja och 12/12 regressionskontroller i PR #7; slutlig CI-granskning och merge återstår.

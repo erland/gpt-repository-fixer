@@ -1,35 +1,25 @@
-from __future__ import annotations
-
+"""Ensure runtime registration and canonical behavior coverage match migration targets."""
 from pathlib import Path
-
-from scripts.build_distributions import build_chat, build_custom, build_opencode, build_plugin, load_config
-from scripts.validate_runtime_parity import validate_runtime_parity
-
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
+def test_runtime_registry_has_exactly_five_active_runtimes():
+    cfg = yaml.safe_load((ROOT / "gpt-project.yaml").read_text(encoding="utf-8"))
+    expected = {"chatgpt_chat", "openai_plugin", "claude_project", "claude_skills", "opencode"}
+    actual = {v["runtime_id"] for v in cfg["build_system"]["runtime_targets"].values()}
+    assert actual == expected
+    assert set(cfg["runtime_parity"]["registered_runtimes"]) == expected
+    assert all(cfg["runtime"][key]["enabled"] for key in ("chat_zip", "plugin", "claude", "opencode"))
 
-def test_runtime_parity_passes_for_enabled_peer_builds(tmp_path):
-    cfg = load_config(ROOT)
-    build_root = tmp_path / "build"
-    build_chat(ROOT, cfg, build_root, "test-parity")
-    build_custom(ROOT, cfg, build_root, "test-parity")
-    build_opencode(ROOT, cfg, build_root, "test-parity")
-    build_plugin(ROOT, cfg, build_root, "test-parity")
-
-    report = validate_runtime_parity(ROOT, build_root)
-    assert report["result"] == "pass", report["errors"]
-
-
-def test_runtime_parity_assesses_all_registered_runtimes():
-    cfg = load_config(ROOT)
-    registered = set(cfg["runtime_parity"]["registered_runtimes"])
-    candidates = {item["runtime_id"] for item in cfg["analysis"]["runtime"]["candidates"]}
-    assert registered == candidates
-    assert registered == {
-        "chatgpt_chat",
-        "chatgpt_custom",
-        "claude_project",
-        "opencode",
-        "openai_plugin",
+def test_canonical_skill_sources_and_resources_are_present():
+    cfg = yaml.safe_load((ROOT / "gpt-project.yaml").read_text(encoding="utf-8"))
+    assert cfg["skills"]["resource_policy"] == "explicit"
+    assert {s["id"] for s in cfg["skills"]["definitions"]} == {
+        "repository-analysis", "repository-remediation", "repository-verification"
     }
+    for skill in cfg["skills"]["definitions"]:
+        assert (ROOT / skill["source"]).is_file()
+        for kind in ("references", "scripts", "assets"):
+            for relative in skill[kind]:
+                assert (ROOT / relative).is_file(), (skill["id"], relative)

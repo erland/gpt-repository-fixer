@@ -13,11 +13,11 @@ def test_ci_runs_full_local_validation_chain_and_builds_all_targets():
     text = _text('ci.yml')
     required = [
         'python -m pytest -q',
-        'scripts/lint_gpt_project.py',
-        'scripts/project_hygiene.py --project-root . --mode final',
-        '--targets project,chat,custom-gpt',
+        'gpt-byggaren-engine-1.6.33.zip',
+        'scripts/install_distribution_engine.py',
+        'scripts/build_distributions.py',
         'scripts/validate_distributions.py',
-        'scripts/validate_release_readiness.py',
+        'repository-fixer-active-five-distributions',
     ]
     for marker in required:
         assert marker in text
@@ -36,7 +36,9 @@ def test_release_uses_release_tag_as_version_and_builds_all_targets():
     text = _text('release.yml')
     assert 'github.event.release.tag_name' in text
     assert 'VERSION="${TAG#v}"' in text
-    assert '--targets project,chat,custom-gpt' in text
+    assert 'gpt-byggaren-engine-1.6.33.zip' in text
+    assert 'scripts/install_distribution_engine.py' in text
+    assert '--targets project,chat,custom-gpt' not in text
     assert "--version '${{ steps.version.outputs.version }}'" in text
 
 
@@ -44,7 +46,7 @@ def test_release_validates_before_publishing_and_uploads_all_assets():
     text = _text('release.yml')
     assert text.index('python -m pytest -q') < text.index('gh release upload')
     assert text.index('scripts/validate_distributions.py') < text.index('gh release upload')
-    assert text.index('scripts/validate_release_readiness.py') < text.index('gh release upload')
+    assert text.index('scripts/install_distribution_engine.py') < text.index('gh release upload')
     assert 'dist/*.zip' in text
     assert 'dist/SHA256SUMS.txt' in text
     assert 'dist/DELIVERY-MANIFEST.json' in text
