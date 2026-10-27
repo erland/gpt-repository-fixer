@@ -2,17 +2,92 @@
   "version": 1,
   "purpose": "Track unique legacy safeguards requiring proof before canonical 1.6.33 cutover",
   "checks": [
-    {"id":"chat-analysis-artifact","source":"scripts/validate_chat_runtime.py","needle":"Standalone Chat runtime did not produce repository-analysis.md","requirement":"Chat generates repository-analysis.md","replacement":"pending"},
-    {"id":"chat-plan-artifact","source":"scripts/validate_chat_runtime.py","needle":"Standalone Chat runtime did not produce repository-fix-plan.md","requirement":"Chat generates repository-fix-plan.md","replacement":"pending"},
-    {"id":"chat-resume","source":"scripts/validate_chat_runtime.py","needle":"Standalone Chat runtime could not resume portable progress state","requirement":"Chat preserves and resumes portable state","replacement":"pending"},
-    {"id":"plugin-state-authority","source":"scripts/validate_openai_plugin_runtime.py","needle":"workspace_file must remain state authority","requirement":"Plugin state authority remains a persistent workspace file","replacement":"pending"},
-    {"id":"plugin-no-mcp-required","source":"scripts/validate_openai_plugin_runtime.py","needle":"Plugin runtime libraries must not require MCP","requirement":"Plugin packaged runtime can operate without mandatory MCP","replacement":"pending"},
-    {"id":"plugin-verification-gate","source":"scripts/validate_openai_plugin_runtime.py","needle":"verification fallback weakened","requirement":"Plugin preserves failing/not-verified semantics","replacement":"pending"},
-    {"id":"plugin-github-fallback","source":"scripts/validate_release_readiness.py","needle":"GitHub write integration must remain conditional_external","requirement":"No GitHub write capability is assumed without host support","replacement":"pending"},
-    {"id":"opencode-contract","source":"scripts/validate_opencode_runtime.py","needle":"runtime-contract.json runtime_id must be opencode","requirement":"OpenCode adapter runtime contract matches distribution","replacement":"pending"},
-    {"id":"canonical-divergence","source":"tests/test_release_readiness.py","needle":"test_release_readiness_detects_instruction_divergence","requirement":"Detect canonical instruction drift after packaging","replacement":"pending"},
-    {"id":"knowledge-divergence","source":"tests/test_release_readiness.py","needle":"test_release_readiness_detects_knowledge_divergence","requirement":"Detect canonical Knowledge drift after packaging","replacement":"pending"},
-    {"id":"custom-gpt-knowledge","source":"tests/test_custom_gpt_distribution.py","needle":"test_custom_gpt_uses_all_canonical_knowledge","requirement":"Equivalent Knowledge completeness assertion for supported runtimes (Custom GPT retired)","replacement":"pending"},
-    {"id":"custom-gpt-github-guidance","source":"scripts/validate_custom_gpt_runtime.py","needle":"Instruction must retain GitHub/PR workflow semantics","requirement":"Keep GitHub branch and PR guardrails in current runtimes","replacement":"pending"}
+    {
+      "id": "chat-analysis-artifact",
+      "source": "scripts/validate_chat_runtime.py",
+      "needle": "Standalone Chat runtime did not produce repository-analysis.md",
+      "requirement": "Chat generates repository-analysis.md",
+      "replacement": "pending"
+    },
+    {
+      "id": "chat-plan-artifact",
+      "source": "scripts/validate_chat_runtime.py",
+      "needle": "Standalone Chat runtime did not produce repository-fix-plan.md",
+      "requirement": "Chat generates repository-fix-plan.md",
+      "replacement": "pending"
+    },
+    {
+      "id": "chat-resume",
+      "source": "scripts/validate_chat_runtime.py",
+      "needle": "Standalone Chat runtime could not resume portable progress state",
+      "requirement": "Chat preserves and resumes portable state",
+      "replacement": "pending"
+    },
+    {
+      "id": "plugin-state-authority",
+      "source": "scripts/validate_openai_plugin_runtime.py",
+      "needle": "workspace_file must remain state authority",
+      "requirement": "Plugin state authority remains a persistent workspace file",
+      "replacement": "pending"
+    },
+    {
+      "id": "plugin-no-mcp-required",
+      "source": "scripts/validate_openai_plugin_runtime.py",
+      "needle": "Plugin runtime libraries must not require MCP",
+      "requirement": "Plugin packaged runtime can operate without mandatory MCP",
+      "replacement": "pending"
+    },
+    {
+      "id": "plugin-verification-gate",
+      "source": "scripts/validate_openai_plugin_runtime.py",
+      "needle": "verification fallback weakened",
+      "requirement": "Plugin preserves failing/not-verified semantics",
+      "replacement": "pending"
+    },
+    {
+      "id": "plugin-github-fallback",
+      "source": "scripts/validate_release_readiness.py",
+      "needle": "GitHub write integration must remain conditional_external",
+      "requirement": "No GitHub write capability is assumed without host support",
+      "replacement": "pending"
+    },
+    {
+      "id": "opencode-contract",
+      "source": "scripts/validate_opencode_runtime.py",
+      "needle": "runtime-contract.json runtime_id must be opencode",
+      "requirement": "OpenCode adapter runtime contract matches distribution",
+      "replacement": "pending"
+    },
+    {
+      "id": "canonical-divergence",
+      "source": "tests/test_release_readiness.py",
+      "needle": "test_release_readiness_detects_instruction_divergence",
+      "requirement": "Detect canonical instruction drift after packaging",
+      "replacement": "pending"
+    },
+    {
+      "id": "knowledge-divergence",
+      "source": "tests/test_release_readiness.py",
+      "needle": "test_release_readiness_detects_knowledge_divergence",
+      "requirement": "Detect canonical Knowledge drift after packaging",
+      "replacement": "verified",
+      "canonical_test": "tests/test_canonical_resource_parity_negative.py",
+      "canonical_gate": "scripts/verify_canonical_resource_parity.py",
+      "scope_note": "Declared Knowledge references in Plugin and Claude Skills are compared byte-for-byte against canonical sources; project-wide Knowledge coverage remains tracked separately under custom-gpt-knowledge."
+    },
+    {
+      "id": "custom-gpt-knowledge",
+      "source": "tests/test_custom_gpt_distribution.py",
+      "needle": "test_custom_gpt_uses_all_canonical_knowledge",
+      "requirement": "Equivalent Knowledge completeness assertion for supported runtimes (Custom GPT retired)",
+      "replacement": "pending"
+    },
+    {
+      "id": "custom-gpt-github-guidance",
+      "source": "scripts/validate_custom_gpt_runtime.py",
+      "needle": "Instruction must retain GitHub/PR workflow semantics",
+      "requirement": "Keep GitHub branch and PR guardrails in current runtimes",
+      "replacement": "pending"
+    }
   ]
 }
