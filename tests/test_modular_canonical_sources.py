@@ -49,14 +49,16 @@ def test_every_original_behavior_block_is_preserved_in_modular_sources():
     assert a in core and c in core and b in verification
 
 
-def test_legacy_runtime_remains_the_active_configuration():
-    config = (ROOT / "gpt-project.yaml").read_text(encoding="utf-8")
-    assert "canonical: src/instructions/system.md" in config
+def test_modular_skills_is_the_active_configuration():
     import yaml
-    parsed = yaml.safe_load(config)
-    assert parsed["instructions"].get("mode") != "modular_skills"
-    assert parsed["instructions"]["migration_target"]["mode"] == "modular_skills"
-    assert parsed["instructions"]["migration_target"]["core"] == "canonical/core.md"
+    parsed = yaml.safe_load((ROOT / "gpt-project.yaml").read_text(encoding="utf-8"))
+    assert parsed["instructions"]["mode"] == "modular_skills"
+    assert parsed["instructions"]["canonical"] == "canonical/core.md"
+    assert parsed["instructions"]["core"] == "canonical/core.md"
+    assert parsed["runtime"]["custom_gpt"]["enabled"] is False
+    assert parsed["runtime"]["claude"]["enabled"] is True
+    assert set(parsed["build_system"]["runtime_targets"]) == {"chat", "plugin", "claude_project", "claude_skills", "opencode"}
+    assert set(parsed["build_system"]["targets"]) == {"project", "chat", "plugin", "claude_project", "claude_skills", "opencode"}
     skills = parsed["skills"]["definitions"]
     assert {skill["id"] for skill in skills} == {"repository-analysis", "repository-remediation", "repository-verification"}
     for skill in skills:
