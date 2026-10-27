@@ -75,6 +75,32 @@ def check_archive(archive: Path):
         assert progress["steps"][0]["status"] == "completed", progress
         assert progress["steps"][0]["verification_status"] == "verified"
 
+        # GitHub is an optional host capability. Denied or unknown write access
+        # must not create a branch/PR state, while verified access may proceed.
+        github_write = load_from_archive(
+            archive, "repository-remediation", "github_write_workflow.py", workspace)
+        source = {
+            "mode": "github",
+            "repository": {"owner": "example", "name": "demo"},
+            "default_branch": "main",
+            "commit_sha": "a" * 40,
+        }
+        for access in (False, None):
+            denied = dict(source, writable=access)
+            try:
+                github_write.initialize_github_write_state(denied)
+            except github_write.GitHubWriteBlocked as exc:
+                assert "Skrivåtkomst måste vara verifierad" in str(exc)
+            else:
+                raise AssertionError(
+                    f"{archive.name}: GitHub write state accepted unverified access {access!r}")
+        authorized = github_write.initialize_github_write_state(
+            dict(source, writable=True))
+        target = github_write.plan_write_target(authorized, "step-1")
+        assert target["action"] == "create-branch-and-pr", target
+        assert target["base_branch"] == "main"
+        assert target["branch"] != "main"
+
         # Persist and restore an unfinished step using actual packaged logic.
         pending = step_control.initialize_progress(plan)
         step_control.apply_user_action(plan, pending, "do", "step-1")
@@ -170,7 +196,9 @@ def check_archive(archive: Path):
         "repository_inventory.detect_from_paths", "finding_model.validate_semantics",
         "step_control.initialize_progress", "step_verification.diff_scope_check",
         "step_control.apply_user_action", "step_verification.assess_step_verification",
-        "step_control.record_execution_result", "step_control.select_next_action"]}
+        "step_control.record_execution_result", "step_control.select_next_action",
+        "github_write_workflow.initialize_github_write_state",
+        "github_write_workflow.plan_write_target"]}
 
 
 def main():
