@@ -7,14 +7,20 @@
       "source": "scripts/validate_chat_runtime.py",
       "needle": "Standalone Chat runtime did not produce repository-analysis.md",
       "requirement": "Chat generates repository-analysis.md",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "scripts/verify_canonical_chat_artifacts.py",
+      "canonical_gate": ".github/workflows/ci.yml",
+      "scope_note": "Actual canonical Chat ZIP Skill Python bytes and packaged templates produce a persisted Markdown artifact on a sample repository; not a full interactive host test."
     },
     {
       "id": "chat-plan-artifact",
       "source": "scripts/validate_chat_runtime.py",
       "needle": "Standalone Chat runtime did not produce repository-fix-plan.md",
       "requirement": "Chat generates repository-fix-plan.md",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "scripts/verify_canonical_chat_artifacts.py",
+      "canonical_gate": ".github/workflows/ci.yml",
+      "scope_note": "Actual canonical Chat ZIP Skill Python bytes and packaged templates produce a persisted Markdown artifact on a sample repository; not a full interactive host test."
     },
     {
       "id": "chat-resume",
