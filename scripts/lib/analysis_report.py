@@ -3,6 +3,26 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
+def _load_default_template(filename: str) -> str:
+    """Find a source-checkout template or a packaged Skill asset.
+
+    The distribution engine copies scripts under <skill>/scripts/ and explicit
+    templates under <skill>/assets/. Source checkouts keep templates/ at root.
+    """
+    script = Path(__file__).resolve()
+    candidates = (
+        script.parent.parent / "assets" / filename,
+        script.parents[2] / "templates" / filename,
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.read_text(encoding="utf-8")
+    raise FileNotFoundError(
+        f"Report template {filename!r} is missing; searched: "
+        + ", ".join(str(path) for path in candidates)
+    )
+
+
 from .finding_model import CLASS_LABELS, validate_semantics
 
 ORDER = {"must-fix": 0, "recommended": 1, "consider": 2, "passed": 3}
@@ -136,7 +156,7 @@ def render_analysis_report(model: dict, template_text: str | None = None) -> str
     limitations = [x for x in limitations if not (x in seen or seen.add(x))]
     limitations_text = "\n".join(f"- {x}" for x in limitations) if limitations else "- Inga särskilda begränsningar registrerades."
 
-    template = template_text or Path(__file__).resolve().parents[2].joinpath("templates/repository-analysis.md.tpl").read_text(encoding="utf-8")
+    template = template_text if template_text is not None else _load_default_template("repository-analysis.md.tpl")
     replacements = {
         "REPOSITORY_NAME": model["repository_name"],
         "SUMMARY": summary,
