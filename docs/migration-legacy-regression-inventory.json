@@ -87,8 +87,11 @@
       "source": "docs/migration-legacy-test-baselines.md",
       "needle": "test_release_readiness_detects_instruction_divergence",
       "requirement": "Detect canonical instruction drift after packaging",
-      "replacement": "pending",
-      "provenance_note": "Original test name and behavior archived; replacement gates tracked separately."
+      "replacement": "verified",
+      "provenance_note": "Original test name and behavior archived; replacement gates tracked separately.",
+      "canonical_test": "tests/test_canonical_instruction_parity_negative.py",
+      "canonical_gate": "scripts/verify_canonical_instruction_sections.py",
+      "scope_note": "Every nonblank canonical/core.md instruction line and every canonical section heading must survive all five packaged runtime projections; 10 negative cases tamper body text or remove projections across the five targets, and the real five-ZIP CI gate checks generated output. Plugin/Claude Skills behavior sources are additionally checked line-by-line by resource parity. This is textual projection parity, not host execution parity."
     },
     {
       "id": "knowledge-divergence",
