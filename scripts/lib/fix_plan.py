@@ -3,6 +3,26 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
+def _load_default_template(filename: str) -> str:
+    """Find a source-checkout template or a packaged Skill asset.
+
+    The distribution engine copies scripts under <skill>/scripts/ and explicit
+    templates under <skill>/assets/. Source checkouts keep templates/ at root.
+    """
+    script = Path(__file__).resolve()
+    candidates = (
+        script.parent.parent / "assets" / filename,
+        script.parents[2] / "templates" / filename,
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.read_text(encoding="utf-8")
+    raise FileNotFoundError(
+        f"Report template {filename!r} is missing; searched: "
+        + ", ".join(str(path) for path in candidates)
+    )
+
+
 CLASS_ORDER = {"must-fix": 0, "recommended": 1, "consider": 2}
 WORKSTREAM_ORDER = {
     "build-test": 0,
@@ -222,7 +242,7 @@ def render_fix_plan(model: dict, template_text: str | None = None) -> str:
         steps = "Inga åtgärdssteg behövs utifrån nuvarande analys."
         next_step = "Erbjud slutverifiering eller avslut; gör inga repositoryändringar utan ett nytt verifierat fynd."
     notes = "\n".join(f"- {n}" for n in model.get("notes") or []) or "- Inga särskilda noter."
-    template = template_text or Path(__file__).resolve().parents[2].joinpath("templates/repository-fix-plan.md.tpl").read_text(encoding="utf-8")
+    template = template_text if template_text is not None else _load_default_template("repository-fix-plan.md.tpl")
     replacements = {
         "REPOSITORY_NAME": model["repository_name"],
         "SUMMARY": summary,
