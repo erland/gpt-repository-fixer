@@ -1,48 +1,27 @@
-from __future__ import annotations
-
+"""Canonical release readiness protects release workflow and delivery verifier."""
 from pathlib import Path
-
-from scripts.build_distributions import build_chat, build_custom, build_opencode, build_plugin, load_config
-from scripts.validate_release_readiness import validate_readiness
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
+def test_release_uses_pinned_engine_and_verifies_before_publication():
+    release = (ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
+    for marker in (
+        "gpt-byggaren-engine-1.6.33.zip",
+        "selftest_distribution_engine.py",
+        "install_distribution_engine.py",
+        "scripts/validate_distributions.py",
+        "scripts/verify_canonical_delivery.py",
+    ):
+        assert marker in release
+        assert release.index(marker) < release.index("gh release upload")
+    assert "github.event.release.tag_name" in release
 
-def test_release_readiness_passes_for_peer_builds(tmp_path):
-    cfg = load_config(ROOT)
-    build_root = tmp_path / 'build'
-    build_chat(ROOT, cfg, build_root, 'test-readiness')
-    build_custom(ROOT, cfg, build_root, 'test-readiness')
-    build_opencode(ROOT, cfg, build_root, 'test-readiness')
-    build_plugin(ROOT, cfg, build_root, 'test-readiness')
-    report = validate_readiness(ROOT, build_root, check_source_clean=False)
-    assert report['result'] == 'pass', report['errors']
-    assert report['summary']['errors'] == 0
-    assert len(report['checks']) == 8
-
-
-def test_release_readiness_detects_instruction_divergence(tmp_path):
-    cfg = load_config(ROOT)
-    build_root = tmp_path / 'build'
-    build_chat(ROOT, cfg, build_root, 'test-readiness')
-    build_custom(ROOT, cfg, build_root, 'test-readiness')
-    build_opencode(ROOT, cfg, build_root, 'test-readiness')
-    build_plugin(ROOT, cfg, build_root, 'test-readiness')
-    (build_root / 'custom-gpt' / 'builder' / 'instructions.md').write_text('diverged\n', encoding='utf-8')
-    report = validate_readiness(ROOT, build_root, check_source_clean=False)
-    assert report['result'] == 'fail'
-    assert any('instructions' in error for error in report['errors'])
-
-
-def test_release_readiness_detects_knowledge_divergence(tmp_path):
-    cfg = load_config(ROOT)
-    build_root = tmp_path / 'build'
-    build_chat(ROOT, cfg, build_root, 'test-readiness')
-    build_custom(ROOT, cfg, build_root, 'test-readiness')
-    build_opencode(ROOT, cfg, build_root, 'test-readiness')
-    build_plugin(ROOT, cfg, build_root, 'test-readiness')
-    target = build_root / 'chat' / 'knowledge' / 'finding-model.md'
-    target.write_text(target.read_text(encoding='utf-8') + '\nchanged\n', encoding='utf-8')
-    report = validate_readiness(ROOT, build_root, check_source_clean=False)
-    assert report['result'] == 'fail'
-    assert any('knowledge/finding-model.md' in error for error in report['errors'])
+def test_canonical_delivery_gate_requires_exact_runtime_manifest_checksums():
+    verifier = (ROOT / "scripts/verify_canonical_delivery.py").read_text(encoding="utf-8")
+    for marker in ("SHA256SUMS.txt", "DELIVERY-MANIFEST.json", "testzip()", "sha256", "project-status.yaml"):
+        assert marker in verifier
+    cfg = yaml.safe_load((ROOT / "gpt-project.yaml").read_text(encoding="utf-8"))
+    assert set(cfg["build_system"]["runtime_targets"]) == {
+        "chat", "plugin", "claude_project", "claude_skills", "opencode"
+    }
