@@ -80,7 +80,10 @@
       "source": "tests/test_custom_gpt_distribution.py",
       "needle": "test_custom_gpt_uses_all_canonical_knowledge",
       "requirement": "Equivalent Knowledge completeness assertion for supported runtimes (Custom GPT retired)",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "scripts/verify_canonical_knowledge_coverage.py",
+      "canonical_gate": ".github/workflows/ci.yml",
+      "scope_note": "Every canonical Knowledge file (except KNOWLEDGE.md index) must have a Skill owner and appear byte-identically in Plugin and Claude Skills; retired Custom GPT itself is not built."
     },
     {
       "id": "custom-gpt-github-guidance",
