@@ -31,6 +31,14 @@ def setup(tmp_path, *, mutation=None):
         entries.append({"target": target, "archive": target + ".zip"})
     with zipfile.ZipFile(dist / "plugin.zip", "w") as z:
         z.writestr("plugin.json", json.dumps({"name": "repository-fixer"}))
+        z.writestr("skills/repository-analysis/SKILL.md",
+                   "Statusfilen går före chattminne; failing blockerar.")
+        z.writestr("skills/repository-remediation/SKILL.md",
+                   "Om skrivåtkomst saknas, gör ingen GitHub-ändring.")
+        z.writestr("skills/repository-remediation/references/github-write-workflow.md",
+                   "Skriv inte direkt till default branch.")
+        z.writestr("skills/repository-verification/SKILL.md",
+                   "Verifiera varje steg.")
     entries.append({"target": "plugin", "archive": "plugin.zip"})
     (tmp_path / "MIGRATION-BUILD-REPORT.json").write_text(json.dumps({"distributions": entries}))
     return tmp_path
