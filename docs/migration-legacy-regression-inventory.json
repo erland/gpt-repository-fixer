@@ -67,7 +67,10 @@
       "source": "scripts/validate_release_readiness.py",
       "needle": "GitHub write integration must remain conditional_external",
       "requirement": "No GitHub write capability is assumed without host support",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "scripts/verify_packaged_domain_smoke.py; tests/test_canonical_runtime_contracts_negative.py",
+      "canonical_gate": "scripts/verify_packaged_domain_smoke.py; scripts/verify_canonical_runtime_contracts.py",
+      "scope_note": "Real packaged Plugin and Claude Skills GitHub write-state refuses denied or unknown permissions and allows branch/PR preparation only for explicitly verified writable=True; Plugin runtime contract requires optional external tools and negative test rejects mandatory GitHub integration. This does not test actual GitHub network writes or host permissions."
     },
     {
       "id": "opencode-contract",
