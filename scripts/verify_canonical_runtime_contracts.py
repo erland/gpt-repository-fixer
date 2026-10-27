@@ -56,6 +56,27 @@ def verify(root: Path) -> dict:
             manifest = json.loads(z.read("plugin.json"))
         if manifest.get("name") != "repository-fixer":
             errors.append("plugin: unexpected manifest identity")
+        with zipfile.ZipFile(path) as z:
+            files = set(z.namelist())
+            def skill_text(skill, suffix):
+                p = f"skills/{skill}/{suffix}"
+                if p not in files:
+                    errors.append(f"plugin: missing policy resource {p}")
+                    return ""
+                return z.read(p).decode("utf-8")
+            core = skill_text("repository-analysis", "SKILL.md")
+            remediation = skill_text("repository-remediation", "SKILL.md")
+            github = skill_text("repository-remediation", "references/github-write-workflow.md")
+            verification = skill_text("repository-verification", "SKILL.md")
+            for marker in ("Statusfilen går före chattminne", "failing"):
+                if marker not in core:
+                    errors.append(f"plugin: core status safeguard missing: {marker}")
+            for marker in ("skrivåtkomst saknas", "Skriv inte direkt till default branch"):
+                if marker not in remediation + "\\n" + github:
+                    errors.append(f"plugin: GitHub fallback safeguard missing: {marker}")
+            for marker in ("Verifier", "steg"):
+                if marker.lower() not in verification.lower():
+                    errors.append(f"plugin: verification skill safeguard missing: {marker}")
         checked.append("plugin")
     result = {"status": "pass" if not errors else "fail",
               "checked": checked, "errors": errors}
