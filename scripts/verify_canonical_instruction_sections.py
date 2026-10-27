@@ -18,6 +18,8 @@ def verify(root: Path) -> dict:
     cfg = yaml.safe_load((root / "gpt-project.yaml").read_text(encoding="utf-8"))
     source = (root / cfg["instructions"]["core"]).read_text(encoding="utf-8")
     headings = re.findall(r"^#{2,3} (.+)$", source, re.MULTILINE)
+    # Headings alone cannot detect policy drift when the body is silently altered.
+    source_lines = [line.strip() for line in source.splitlines() if line.strip()]
     build = json.loads((root / "MIGRATION-BUILD-REPORT.json").read_text(encoding="utf-8"))
     archives = {item["target"]: root / "dist" / item["archive"] for item in build["distributions"]}
     issues = []
@@ -40,7 +42,10 @@ def verify(root: Path) -> dict:
             for heading in headings:
                 if heading not in projected:
                     issues.append(f"{target}: canonical section missing: {heading}")
-    report = {"status": "pass" if not issues else "fail", "canonical_sections": len(headings),
+            for line in source_lines:
+                if line not in projected:
+                    issues.append(f"{target}: canonical instruction line lost or altered: {line[:120]}")
+    report = {"status": "pass" if not issues else "fail", "canonical_sections": len(headings), "canonical_lines": len(source_lines),
               "projections": counts, "issues": issues}
     (root / "INSTRUCTION-PARITY-REPORT.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
