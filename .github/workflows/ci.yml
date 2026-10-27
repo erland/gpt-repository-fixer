@@ -135,6 +135,13 @@ jobs:
           --source /tmp/gpt-builder-engine
           --project-root "$GITHUB_WORKSPACE"
 
+      - name: Run canonical lint and final source hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/lint_gpt_project.py --project-root .
+          python scripts/project_hygiene.py --project-root . --mode final
+
       - name: Build and validate five active runtime targets
         shell: bash
         run: |
