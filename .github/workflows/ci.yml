@@ -58,3 +58,40 @@ jobs:
             dist/DELIVERY-MANIFEST.json
           if-no-files-found: error
           retention-days: 7
+
+  canonical-engine-preflight:
+    name: GPT Byggaren 1.6.33 original engine self-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download pinned canonical engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            --output /tmp/gpt-byggaren-engine-1.6.33.zip \
+            https://github.com/erland/gpt-byggaren/releases/download/v1.6.33/gpt-byggaren-engine-1.6.33.zip
+          python - <<'PY'
+          import pathlib, zipfile
+          path = pathlib.Path('/tmp/gpt-byggaren-engine-1.6.33.zip')
+          with zipfile.ZipFile(path) as archive:
+              for item in archive.infolist():
+                  parts = pathlib.PurePosixPath(item.filename)
+                  if parts.is_absolute() or '..' in parts.parts or not parts.parts:
+                      raise ValueError(f'Unsafe engine archive entry: {item.filename}')
+              archive.extractall('/tmp/gpt-builder-engine')
+          PY
+
+      - name: Verify original engine integrity and smoke build
+        run: >-
+          python /tmp/gpt-builder-engine/scripts/selftest_distribution_engine.py
+          --source /tmp/gpt-builder-engine
