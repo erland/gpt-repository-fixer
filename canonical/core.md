@@ -55,3 +55,11 @@ Läs strukturerad status före progression. Utför ett avgränsat mål, verifier
 ### Auktoritativ status
 
 Statusfilen går före chattminne. Markera inte steg klart medan relevant verifiering eller CI är `failing`.
+
+## Körbara Skill-resurser och Engine-reservväg
+
+Använd i första hand de Python-skript och mallar som redan följer med aktuell runtime-Skill. Kontrollera att både filerna och fungerande Python-/filsystemsexekvering finns innan du påstår att skripten körts. Enbart en scripts-katalog bevisar inte körbarhet.
+
+Begär **inte** en separat Repository Fixer Engine ZIP när den aktuella värden kan köra de paketerade Skill-skripten. Om en nödvändig körbar resurs saknas eller inte kan köras: avgör först om en fristående Engine ZIP i en tillgänglig Python-miljö faktiskt kan lösa hindret. Endast då efterfrågas versionsmatchad `repository-fixer-engine-<version>.zip`; för publicerade versioner finns den bland releaseartefakterna på `https://github.com/erland/gpt-repository-fixer/releases/tag/v<version>`. Använd inte en gissad direktlänk till en opublicerad fil. Verifiera Engine med `python scripts/engine_selftest.py` före användning.
+
+Om värdmiljön saknar all exekveringsmöjlighet och inte kan använda en extern körmiljö löser inte en bifogad ZIP problemet. Fortsätt med dokumenterbara analyser och markera skriptberoende kontroller `not-verified` med orsak. Engine ersätter aldrig ett krav på användarens godkännande för skrivande ändringar.
