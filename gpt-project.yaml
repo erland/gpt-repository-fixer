@@ -343,6 +343,26 @@ workflow:
     paused:
       control_state: true
 
+# Engine is a portable fallback; active runtime ZIPs retain their Skill scripts.
+engine:
+  enabled: true
+  resources:
+    - scripts/lib
+    - templates/repository-analysis.md.tpl
+    - templates/repository-fix-plan.md.tpl
+    - templates/repository-final-report.md.tpl
+    - schemas
+  selftest: scripts/engine_selftest.py
+  release_repository: erland/gpt-repository-fixer
+  python_dependencies: []
+  required_files:
+    - scripts/lib/analysis_report.py
+    - scripts/lib/fix_plan.py
+    - scripts/lib/final_report.py
+    - templates/repository-analysis.md.tpl
+    - templates/repository-fix-plan.md.tpl
+    - templates/repository-final-report.md.tpl
+
 build:
   deterministic: true
   create_manifest: true
