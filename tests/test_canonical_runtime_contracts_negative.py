@@ -116,3 +116,17 @@ def test_plugin_missing_verification_skill_is_rejected(tmp_path):
     assert report["status"] == "fail"
     assert any("missing policy resource skills/repository-verification/SKILL.md" in e
                for e in report["errors"])
+
+
+def test_wrong_opencode_identity_is_rejected(tmp_path):
+    root = setup(tmp_path, mutation=("opencode", lambda c: c.update({"runtime_id": "chatgpt_chat"})))
+    report = contracts.verify(root)
+    assert report["status"] == "fail"
+    assert any("opencode: incorrect runtime_id" in e for e in report["errors"])
+
+
+def test_wrong_opencode_adapter_is_rejected(tmp_path):
+    root = setup(tmp_path, mutation=("opencode", lambda c: c["adapter"].update({"mode": "claude_project"})))
+    report = contracts.verify(root)
+    assert report["status"] == "fail"
+    assert any("opencode: incorrect adapter mode" in e for e in report["errors"])
