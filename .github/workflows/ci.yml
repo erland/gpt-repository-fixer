@@ -135,6 +135,11 @@ jobs:
           python scripts/verify_canonical_resource_parity.py
           --project-root /tmp/repository-fixer-migration-preview
 
+      - name: Verify complete canonical Knowledge coverage
+        run: >-
+          python scripts/verify_canonical_knowledge_coverage.py
+          --project-root /tmp/repository-fixer-migration-preview
+
       - name: Upload isolated canonical build diagnostics
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
