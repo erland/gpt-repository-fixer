@@ -33,7 +33,7 @@ def make_fixture(tmp_path):
     (tmp_path / "dist").mkdir()
     archive = tmp_path / "dist/plugin.zip"
     with zipfile.ZipFile(archive, "w") as z:
-        z.writestr("skills/repository-analysis/SKILL.md", "# repository-analysis\n## Evidence\nCheck evidence.\n")
+        z.writestr("skills/repository-analysis/SKILL.md", "# Analysis\n## Evidence\nCheck evidence.\n")
         z.writestr("skills/repository-analysis/references/analysis-report.md", "Reference content")
         z.writestr("skills/repository-analysis/scripts/finding_model.py", "def validate(): return True\n")
     (tmp_path / "MIGRATION-BUILD-REPORT.json").write_text(json.dumps({
