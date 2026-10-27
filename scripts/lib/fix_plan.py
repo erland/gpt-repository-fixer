@@ -13,6 +13,7 @@ def _load_default_template(filename: str) -> str:
     candidates = (
         script.parent.parent / "assets" / filename,
         script.parents[2] / "templates" / filename,
+        script.parent.parent / "templates" / filename,
     )
     for candidate in candidates:
         if candidate.is_file():
