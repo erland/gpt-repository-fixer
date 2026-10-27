@@ -50,11 +50,11 @@ state:
   overall: in_progress
   blocking_issues: []
   warnings:
-  - Migreringen till GPT Byggaren 1.6.33 är aktiv i PR #7 men väntar på filhygien, slutverifiering och merge.
+  - Migreringen till GPT Byggaren 1.6.33 har 12/12 regressionsgates; inväntar slutlig CI, mergegranskning och merge av PR #7.
 next_step:
-  recommended: migration_final_hygiene
-  title: Slutgranska migreringen till GPT Byggaren 1.6.33
-  reason: Fem runtimes byggs med originalmotorn; legacy-skript, dokumentationshygien och releasekontroller måste granskas före merge.
+  recommended: migration_final_review
+  title: Verifiera slutlig CI och mergevillkor för PR #7
+  reason: Fem runtimes och samtliga 12 regressionskontroller är verifierade; senaste CI och PR-villkor ska granskas före merge.
 resume:
   supported: true
   required_files:
@@ -63,4 +63,4 @@ resume:
   - docs/development-plan.md
   - STATUS.md
   - PROJECT.md
-  human_readable_status: Ursprungliga steg 1–29 är verifierade. Migrering till GPT Byggaren 1.6.33 har aktiv fem-runtime-byggkedja i PR #7; slutgranskning och merge återstår.
+  human_readable_status: Ursprungliga steg 1–29 är verifierade. Migrering till GPT Byggaren 1.6.33 har aktiv fem-runtime-byggkedja och 12/12 regressionskontroller i PR #7; slutlig CI-granskning och merge återstår.
