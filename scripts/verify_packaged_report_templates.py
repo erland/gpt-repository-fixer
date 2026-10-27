@@ -45,9 +45,24 @@ def _sample_models():
 
 
 def verify(root: Path) -> dict:
-    report = json.loads((root / "MIGRATION-BUILD-REPORT.json").read_text(encoding="utf-8"))
-    archives = {item["target"]: root / "dist" / item["archive"]
-                for item in report["distributions"]}
+    report_path = root / "MIGRATION-BUILD-REPORT.json"
+    if report_path.is_file():
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        archives = {item["target"]: root / "dist" / item["archive"]
+                    for item in report["distributions"]}
+    else:
+        # Release builds do not produce a migration report; inspect final ZIPs.
+        patterns = {
+            "chat": "repository-fixer-chat-v*.zip",
+            "plugin": "repository-fixer-plugin-v*.zip",
+            "claude_skills": "repository-fixer-claude-skills-v*.zip",
+            "opencode": "repository-fixer-opencode-v*.zip",
+        }
+        archives = {}
+        for target, pattern in patterns.items():
+            matches = list((root / "dist").glob(pattern))
+            assert len(matches) == 1, (target, matches)
+            archives[target] = matches[0]
     tested = []
     with tempfile.TemporaryDirectory(prefix="report-renderers-") as temp:
         base = Path(temp)
