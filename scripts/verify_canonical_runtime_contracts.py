@@ -63,6 +63,13 @@ def verify(root: Path) -> dict:
                 plugin_contract = json.loads(z.read("runtime-contract.json"))
                 if plugin_contract.get("runtime_id") != "openai_plugin":
                     errors.append("plugin: wrong runtime identity")
+                plugin_requirements = (
+                    (plugin_contract.get("capabilities") or {})
+                    .get("requirements") or {}
+                )
+                plugin_external = plugin_requirements.get("external_tools") or {}
+                if plugin_external.get("level") != "optional":
+                    errors.append("plugin: GitHub/external write integration must remain optional")
                 adapter = plugin_contract.get("adapter") or {}
                 resources = adapter.get("script_resources") or {}
                 if resources.get("mcp_required_for_resource_use") is not False:
