@@ -156,6 +156,27 @@ jobs:
           python scripts/build_distributions.py --project-root "$GITHUB_WORKSPACE" --version 0.0.0-ci
           python scripts/validate_distributions.py --project-root "$GITHUB_WORKSPACE"
 
+      - name: Verify standalone Repository Fixer Engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/engine_selftest.py
+          python - <<'PY'
+          import json, pathlib, subprocess, sys, tempfile, zipfile
+          dist = pathlib.Path("dist")
+          archives = list(dist.glob("repository-fixer-engine-*.zip"))
+          assert len(archives) == 1, archives
+          with tempfile.TemporaryDirectory() as temp:
+              with zipfile.ZipFile(archives[0]) as z:
+                  for name in z.namelist():
+                      parts = pathlib.PurePosixPath(name)
+                      assert not parts.is_absolute() and ".." not in parts.parts, name
+                  z.extractall(temp)
+              manifest = json.loads((pathlib.Path(temp) / "engine-package.json").read_text())
+              assert manifest["engine_id"] == "repository-fixer"
+              subprocess.run([sys.executable, "scripts/engine_selftest.py"], cwd=temp, check=True)
+          PY
+
       - name: Verify final distribution ZIP report renderers
         run: python scripts/verify_packaged_report_templates.py --project-root .
 
