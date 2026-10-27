@@ -41,7 +41,10 @@
       "source": "scripts/validate_openai_plugin_runtime.py",
       "needle": "Plugin runtime libraries must not require MCP",
       "requirement": "Plugin packaged runtime can operate without mandatory MCP",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "tests/test_canonical_runtime_contracts_negative.py",
+      "canonical_gate": "scripts/verify_canonical_runtime_contracts.py",
+      "scope_note": "Packaged Plugin runtime contract requires mcp_required_for_resource_use=false and mcp_generated=false; negative test rejects mandatory MCP. Host-side script execution remains conditional."
     },
     {
       "id": "plugin-verification-gate",
