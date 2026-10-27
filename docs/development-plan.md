@@ -773,3 +773,22 @@ Migreringen ska bevara Repository Fixer 1.0.0:s domänbeteende och genomföras s
 - fix-steg inte får markeras verifierade utan faktisk code/build/test-verifiering,
 - GitHub branch/commit/PR och ZIP-leverans endast påstås när hosten faktiskt erbjuder motsvarande capability,
 - projektets egna build/lint/release-validatorer inte paketeras som Plugin runtime-resurser.
+
+
+---
+
+## Migrering till GPT Byggaren Engine 1.6.33 (PR #7)
+
+De historiska utvecklingsstegen 1–29 och domänversion 1.0.0 kvarstår som baslinje.
+Detta är en separat migrationsaktivitet, inte en ny domänrelease.
+
+- **Genomfört:** canonical core och tre Skills, aktiv `modular_skills`-profil,
+  versionslåst originalmotor, fem runtime-distributioner, aktiv CI/releasebyggkedja.
+- **Verifierat:** push- och PR-CI för aktiveringscommit `741e3c7` samt isolerade
+  paket-/Knowledge-/kontraktskontroller.
+- **Återstår:** slutlig projekthygien, inventering av föråldrade skript,
+  länkkontroller, slutlig granskning och bedömning av merge/release.
+- **Inte bevisat:** all funktionalitet i externa hostmiljöer eller en ny
+  release från den migrerade projektversionen.
+
+Migrationsplan och aktiveringsgate: `docs/migration-gpt-builder-1.6.33-activation-gate.md`.
