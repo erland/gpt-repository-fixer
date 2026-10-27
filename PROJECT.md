@@ -17,18 +17,15 @@ V1 fokuserar på README och övrig Markdown-dokumentation, LICENSE, repository h
 
 ## Distributioner
 
-Projektet migreras till GPT Byggaren 1.5.0 och använder peer-runtime-modellen.
-
-Default-aktiva distributionsmål:
+Projektets aktiva byggkedja använder **GPT Byggaren Engine 1.6.33** och fem jämställda distributionsmål:
 
 - Chat ZIP
-- Custom GPT
-- OpenCode
-- OpenAI Plugin – `equivalent_runtime_dependent`; skills-first paket med canonical workflow, state-kontrakt och explicit runtimebibliotek. Full fix-parity kräver writable/persistent workspace och code execution från hosten.
+- OpenAI Plugin – Skills-first, med beroende av hostens skrivbara/persistenta workspace och kompatibel exekvering
+- Claude Projects – instruktioner och Knowledge, reducerad lokal verktygsexekvering
+- Claude Skills – paketerade Skills och tillhörande resurser
+- OpenCode – workspace-baserad distribution
 
-Bedömda men inte default-aktiverade mål:
-
-- Claude Projects – reducerat stöd eftersom lokala deterministiska verktyg inte kan bäddas in.
+Historisk Custom GPT är inaktiverad och inte en sjätte runtime. `canonical/core.md` samt tre separata Skills är aktiva källor. Version 1.0.0 betecknar domänreleasen, inte byggmotorns version. Migrations-PR #7 är ännu inte mergad eller releasad.
 
 ## Profil
 
