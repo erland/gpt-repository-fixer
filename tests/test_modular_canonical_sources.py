@@ -61,3 +61,23 @@ def test_legacy_runtime_remains_the_active_configuration():
     assert {skill["id"] for skill in skills} == {"repository-analysis", "repository-remediation", "repository-verification"}
     for skill in skills:
         assert (ROOT / skill["source"]).is_file()
+
+
+def test_explicit_skill_resources_exist_and_are_scoped():
+    import yaml
+
+    cfg = yaml.safe_load((ROOT / "gpt-project.yaml").read_text(encoding="utf-8"))
+    assert cfg["skills"]["resource_policy"] == "explicit"
+    skills = cfg["skills"]["definitions"]
+    for skill in skills:
+        for kind in ("references", "assets", "scripts"):
+            paths = skill[kind]
+            assert isinstance(paths, list), (skill["id"], kind)
+            assert len(paths) == len(set(paths)), (skill["id"], kind)
+            for relative in paths:
+                assert not relative.startswith("/") and ".." not in Path(relative).parts
+                assert (ROOT / relative).is_file(), (skill["id"], relative)
+        assert skill["scripts"], skill["id"]
+        assert skill["references"], skill["id"]
+    assert "scripts/lib/github_actions_analysis.py" in skills[0]["scripts"]
+    assert "scripts/lib/build_test_analysis.py" in skills[0]["scripts"]
