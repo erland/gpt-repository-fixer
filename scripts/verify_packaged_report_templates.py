@@ -29,6 +29,7 @@ PREFIXES = {
 def _sample_models():
     inventory = {"technologies": {}, "project_types": [], "confidence": "medium"}
     analysis = {"repository_name": "packaged-smoke", "inventory": inventory, "findings": [], "build_test": {},
+                "recommended_next_step": "Review the findings",
                 "checked_areas": []}
     return {
         "repository-analysis": analysis,
