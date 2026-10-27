@@ -62,7 +62,10 @@
       "source": "scripts/validate_opencode_runtime.py",
       "needle": "runtime-contract.json runtime_id must be opencode",
       "requirement": "OpenCode adapter runtime contract matches distribution",
-      "replacement": "pending"
+      "replacement": "verified",
+      "canonical_test": "tests/test_canonical_runtime_contracts_negative.py",
+      "canonical_gate": "scripts/verify_canonical_runtime_contracts.py",
+      "scope_note": "OpenCode ZIP runtime-contract.json identity and adapter verified, with negative tests for wrong runtime_id and adapter mode; external host behavior not covered."
     },
     {
       "id": "canonical-divergence",
