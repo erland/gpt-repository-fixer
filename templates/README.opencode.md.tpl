@@ -1,29 +1,22 @@
 # {{GPT_NAME}} – OpenCode-distribution
 
-Detta paket är en basruntime för OpenCode.
+Detta paket är en fristående OpenCode-runtime för **Repository Fixer**, inte en GPT Byggaren-utvecklingsmiljö.
 
 ## Användning
 
-1. Packa upp ZIP-filen som ett OpenCode-workspace för GPT Byggaren.
-2. Öppna workspace-roten i OpenCode.
-3. OpenCode läser root `AGENTS.md` som projektinstruktion.
-4. Lägg det GPT-projekt som ska analyseras eller ändras som en underkatalog i workspace, exempelvis `project/`, eller använd en annan relativ sökväg från workspace-roten.
-5. När ett genererat GPT Byggaren-tool körs mot ett målprojekt, ange `projectRoot` för målprojektet, exempelvis `project`. Om `projectRoot` utelämnas används workspace-roten.
-6. `.opencode/runtime-contract.json` dokumenterar hur adaptern realiserar canonical kontrakt.
-7. `knowledge/` innehåller portabelt referensmaterial som agenten kan läsa vid behov.
+1. Packa upp ZIP-filen i en arbetskatalog och öppna katalogen i OpenCode.
+2. Läs `AGENTS.md`, som innehåller Repository Fixers instruktioner.
+3. Ge agenten ett repository som ZIP, en tillgänglig GitHub-länk eller en lokal katalog att analysera.
+4. Repository Fixers tre Skills finns under `.opencode/skills/`. Deras Python-resurser finns i respektive Skills `scripts/`, och rapportmallar i `assets/`.
+5. Begär analys och åtgärdsplan innan några ändringar görs. Skrivande GitHub-arbete kräver separat verifierad behörighet.
 
-## Viktigt om målprojektet
+## Verktyg och förutsättningar
 
-OpenCode-ZIP:en är GPT Byggarens runtime, inte det GPT-projekt som ska bearbetas. Runtimepaketet innehåller därför inte automatiskt målprojektets `gpt-project.yaml`, `project-status.yaml` eller övriga canonical projektfiler.
+Denna distribution deklarerar **inga projektlokala OpenCode custom tools**. Katalogen `.opencode/tools/` och GPT Byggaren-verktyg som `gpt_build_distributions` ingår därför inte.
 
-Tools som `gpt_lint_project`, `gpt_recommend_next_step`, `gpt_project_hygiene`, `gpt_build_distributions` och `gpt_validate_distributions` arbetar mot den katalog som anges med `projectRoot`.
+Skill-skripten är återanvändbara Python-resurser, **inte automatiskt registrerade OpenCode-tools**. De kan köras om hosten erbjuder Python, filsystemsåtkomst och nödvändiga beroenden. Om exekvering saknas ska agenten redovisa vad som inte verifierats, inte påstå att ett skript har körts.
 
-## Avgränsning i denna version
-
-- Återanvändbara Skills finns under `.opencode/skills/` och laddas av OpenCode vid behov.
-- Canonical runtime-tools finns som projektlokala custom tools under `.opencode/tools/`.
-- `opencode.json` styr godkännande för muterande respektive icke-muternade tools.
-- `CLAUDE.md` används inte; OpenCode V2 använder `AGENTS.md` för projektinstruktioner.
+`.opencode/runtime-contract.json` beskriver runtimekontraktet. `opencode.json` är OpenCode-konfigurationen. `knowledge/` innehåller referensmaterial.
 
 ## Version
 
