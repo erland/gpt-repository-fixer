@@ -70,3 +70,49 @@ def test_invented_claude_local_execution_is_rejected(tmp_path):
     report = contracts.verify(root)
     assert report["status"] == "fail"
     assert any("embedded local tools incorrectly assumed" in e for e in report["errors"])
+
+
+def rewrite_plugin(tmp_path, path, replacement=None):
+    archive = tmp_path / "dist/plugin.zip"
+    with zipfile.ZipFile(archive) as z:
+        files = {name: z.read(name) for name in z.namelist()}
+    if replacement is None:
+        files.pop(path)
+    else:
+        files[path] = replacement.encode("utf-8")
+    with zipfile.ZipFile(archive, "w") as z:
+        for name, data in files.items():
+            z.writestr(name, data)
+
+
+def test_plugin_missing_workspace_authority_is_rejected(tmp_path):
+    root = setup(tmp_path)
+    rewrite_plugin(root, "skills/repository-analysis/SKILL.md", "failing blockerar.")
+    report = contracts.verify(root)
+    assert report["status"] == "fail"
+    assert any("core status safeguard missing: Statusfilen" in e for e in report["errors"])
+
+
+def test_plugin_missing_github_write_fallback_is_rejected(tmp_path):
+    root = setup(tmp_path)
+    rewrite_plugin(root, "skills/repository-remediation/SKILL.md", "GitHub workflow.")
+    report = contracts.verify(root)
+    assert report["status"] == "fail"
+    assert any("GitHub fallback safeguard missing: skrivåtkomst saknas" in e for e in report["errors"])
+
+
+def test_plugin_missing_default_branch_safety_is_rejected(tmp_path):
+    root = setup(tmp_path)
+    rewrite_plugin(root, "skills/repository-remediation/references/github-write-workflow.md")
+    report = contracts.verify(root)
+    assert report["status"] == "fail"
+    assert any("GitHub fallback safeguard missing: Skriv inte direkt" in e for e in report["errors"])
+
+
+def test_plugin_missing_verification_skill_is_rejected(tmp_path):
+    root = setup(tmp_path)
+    rewrite_plugin(root, "skills/repository-verification/SKILL.md")
+    report = contracts.verify(root)
+    assert report["status"] == "fail"
+    assert any("missing policy resource skills/repository-verification/SKILL.md" in e
+               for e in report["errors"])
