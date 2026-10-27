@@ -31,6 +31,18 @@ def main() -> int:
         "runtime_contract": "project/runtime-contract.json",
     }
     cfg["runtime"]["plugin"].setdefault("templates", {})["readme"] = "templates/README.plugin.md.tpl"
+    cfg["runtime"]["plugin"]["layout"] = {
+        "manifest_file": "plugin.json",
+        "skills": "skills",
+        "references": "references",
+        "assets": "assets",
+        "scripts": "scripts",
+    }
+    cfg["runtime"]["plugin"].setdefault("validation", {}).update({
+        "require_manifest": True,
+        "require_skill": True,
+        "require_skill_frontmatter": True,
+    })
     cfg["runtime"]["claude"].setdefault("templates", {})["readme"] = "templates/README.claude.md.tpl"
     cfg["build"]["build_custom_gpt_zip"] = False
     cfg["build"]["build_claude_zip"] = True
