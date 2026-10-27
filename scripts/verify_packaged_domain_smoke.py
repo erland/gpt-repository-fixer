@@ -56,9 +56,47 @@ def check_archive(archive: Path):
         assert scoped["status"] == "verified", scoped
         unscoped = verification.diff_scope_check(plan["steps"][0], ["pom.xml"])
         assert unscoped["status"] == "not-verified", unscoped
+        # End-to-end state transition from approved step through verified completion.
+        step_control.apply_user_action(plan, progress, "do", "step-1")
+        assert progress["steps"][0]["status"] == "in-progress"
+        checked = verification.assess_step_verification(
+            plan["steps"][0],
+            changed_paths=["README.md"],
+            results={"docs-consistency": {
+                "status": "verified",
+                "summary": "README references checked against changed content",
+            }},
+        )
+        assert checked["status"] == "verified", checked
+        step_control.record_execution_result(
+            plan, progress, "step-1", success=True,
+            verification_status=checked["status"],
+        )
+        assert progress["steps"][0]["status"] == "completed", progress
+        assert progress["steps"][0]["verification_status"] == "verified"
+
+        # Regression gate: an observed verification failure may never complete.
+        blocked = step_control.initialize_progress(plan)
+        step_control.apply_user_action(plan, blocked, "do", "step-1")
+        failed = verification.assess_step_verification(
+            plan["steps"][0],
+            changed_paths=["README.md"],
+            results={"docs-consistency": {
+                "status": "failing", "summary": "Broken reference in README",
+            }},
+        )
+        assert failed["status"] == "failing", failed
+        step_control.record_execution_result(
+            plan, blocked, "step-1", success=True,
+            verification_status=failed["status"],
+        )
+        assert blocked["steps"][0]["status"] == "blocked", blocked
+        assert blocked["steps"][0]["verification_status"] == "failing"
     return {"archive": archive.name, "result": "PASS", "functions": [
         "repository_inventory.detect_from_paths", "finding_model.validate_semantics",
-        "step_control.initialize_progress", "step_verification.diff_scope_check"]}
+        "step_control.initialize_progress", "step_verification.diff_scope_check",
+        "step_control.apply_user_action", "step_verification.assess_step_verification",
+        "step_control.record_execution_result"]}
 
 
 def main():
