@@ -66,30 +66,33 @@
     },
     {
       "id": "canonical-divergence",
-      "source": "tests/test_release_readiness.py",
+      "source": "docs/migration-legacy-test-baselines.md",
       "needle": "test_release_readiness_detects_instruction_divergence",
       "requirement": "Detect canonical instruction drift after packaging",
-      "replacement": "pending"
+      "replacement": "pending",
+      "provenance_note": "Original test name and behavior archived; replacement gates tracked separately."
     },
     {
       "id": "knowledge-divergence",
-      "source": "tests/test_release_readiness.py",
+      "source": "docs/migration-legacy-test-baselines.md",
       "needle": "test_release_readiness_detects_knowledge_divergence",
       "requirement": "Detect canonical Knowledge drift after packaging",
       "replacement": "verified",
       "canonical_test": "tests/test_canonical_resource_parity_negative.py",
       "canonical_gate": "scripts/verify_canonical_resource_parity.py",
-      "scope_note": "Declared Knowledge references in Plugin and Claude Skills are compared byte-for-byte against canonical sources; project-wide Knowledge coverage remains tracked separately under custom-gpt-knowledge."
+      "scope_note": "Declared Knowledge references in Plugin and Claude Skills are compared byte-for-byte against canonical sources; project-wide Knowledge coverage remains tracked separately under custom-gpt-knowledge.",
+      "provenance_note": "Original test name and behavior archived; replacement gates tracked separately."
     },
     {
       "id": "custom-gpt-knowledge",
-      "source": "tests/test_custom_gpt_distribution.py",
+      "source": "docs/migration-legacy-test-baselines.md",
       "needle": "test_custom_gpt_uses_all_canonical_knowledge",
       "requirement": "Equivalent Knowledge completeness assertion for supported runtimes (Custom GPT retired)",
       "replacement": "verified",
       "canonical_test": "scripts/verify_canonical_knowledge_coverage.py",
       "canonical_gate": ".github/workflows/ci.yml",
-      "scope_note": "Every canonical Knowledge file (except KNOWLEDGE.md index) must have a Skill owner and appear byte-identically in Plugin and Claude Skills; retired Custom GPT itself is not built."
+      "scope_note": "Every canonical Knowledge file (except KNOWLEDGE.md index) must have a Skill owner and appear byte-identically in Plugin and Claude Skills; retired Custom GPT itself is not built.",
+      "provenance_note": "Original test name and behavior archived; replacement gates tracked separately."
     },
     {
       "id": "custom-gpt-github-guidance",
