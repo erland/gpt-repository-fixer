@@ -32,6 +32,15 @@ def verify(root: Path) -> dict:
         for field in ("capabilities", "artifacts", "workspace_state", "tools"):
             if not isinstance(contract.get(field), dict):
                 errors.append(f"{target}: missing {field} contract")
+        state = (contract.get("workspace_state") or {}).get("state") or {}
+        if state.get("authority") != "workspace_file" or state.get("persistence") != "required":
+            errors.append(f"{target}: persistent workspace state authority weakened")
+        if state.get("conversation_fallback") is not False:
+            errors.append(f"{target}: conversation fallback must not replace workspace state")
+        if target == "claude_project":
+            adapter = contract.get("adapter") or {}
+            if adapter.get("embedded_local_tools") is not False:
+                errors.append("claude_project: embedded local tools incorrectly assumed")
         checked.append(target)
     path = archives.get("plugin")
     if path is None or not path.is_file():
