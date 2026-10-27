@@ -140,6 +140,11 @@ jobs:
           python scripts/verify_canonical_knowledge_coverage.py
           --project-root /tmp/repository-fixer-migration-preview
 
+      - name: Verify canonical runtime contracts and adapter identities
+        run: >-
+          python scripts/verify_canonical_runtime_contracts.py
+          --project-root /tmp/repository-fixer-migration-preview
+
       - name: Upload isolated canonical build diagnostics
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
