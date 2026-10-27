@@ -24,6 +24,12 @@ def main() -> int:
     cfg["instructions"]["canonical"] = "canonical/core.md"
     cfg["runtime"]["custom_gpt"]["enabled"] = False
     cfg["runtime"]["claude"]["enabled"] = True
+    cfg["runtime"]["claude"]["mode"] = "claude_project"
+    cfg["runtime"]["claude"]["project"] = {
+        "instructions": "project/instructions.md",
+        "knowledge": "project/knowledge",
+        "runtime_contract": "project/runtime-contract.json",
+    }
     cfg["runtime"]["plugin"].setdefault("templates", {})["readme"] = "templates/README.plugin.md.tpl"
     cfg["runtime"]["claude"].setdefault("templates", {})["readme"] = "templates/README.claude.md.tpl"
     cfg["build"]["build_custom_gpt_zip"] = False
