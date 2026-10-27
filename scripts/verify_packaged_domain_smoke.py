@@ -75,6 +75,33 @@ def check_archive(archive: Path):
         assert progress["steps"][0]["status"] == "completed", progress
         assert progress["steps"][0]["verification_status"] == "verified"
 
+        # Persist and restore an unfinished step using actual packaged logic.
+        pending = step_control.initialize_progress(plan)
+        step_control.apply_user_action(plan, pending, "do", "step-1")
+        state_file = workspace / "project-status.json"
+        state_file.write_text(json.dumps(pending, ensure_ascii=False), encoding="utf-8")
+        restored = json.loads(state_file.read_text(encoding="utf-8"))
+        action = step_control.select_next_action(plan, restored)
+        assert action["action"] == "resume-execution", action
+        assert action["step_id"] == "step-1", action
+        assert restored["steps"][0]["status"] == "in-progress"
+        resumed_check = verification.assess_step_verification(
+            plan["steps"][0],
+            changed_paths=["README.md"],
+            results={"docs-consistency": {
+                "status": "verified", "summary": "Verified after restoring saved state",
+            }},
+        )
+        step_control.record_execution_result(
+            plan, restored, "step-1", success=True,
+            verification_status=resumed_check["status"],
+        )
+        assert restored["steps"][0]["status"] == "completed"
+        state_file.write_text(json.dumps(restored, ensure_ascii=False), encoding="utf-8")
+        reloaded = json.loads(state_file.read_text(encoding="utf-8"))
+        assert reloaded["steps"][0]["verification_status"] == "verified"
+        assert reloaded["steps"][0]["status"] == "completed"
+
         # Regression gate: an observed verification failure may never complete.
         blocked = step_control.initialize_progress(plan)
         step_control.apply_user_action(plan, blocked, "do", "step-1")
@@ -96,7 +123,7 @@ def check_archive(archive: Path):
         "repository_inventory.detect_from_paths", "finding_model.validate_semantics",
         "step_control.initialize_progress", "step_verification.diff_scope_check",
         "step_control.apply_user_action", "step_verification.assess_step_verification",
-        "step_control.record_execution_result"]}
+        "step_control.record_execution_result", "step_control.select_next_action"]}
 
 
 def main():
