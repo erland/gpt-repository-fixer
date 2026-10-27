@@ -116,6 +116,11 @@ jobs:
           python scripts/verify_canonical_runtime_contracts.py
           --project-root /tmp/repository-fixer-migration-preview
 
+      - name: Generate Chat analysis and plan from packaged canonical scripts
+        run: >-
+          python scripts/verify_canonical_chat_artifacts.py
+          --project-root /tmp/repository-fixer-migration-preview
+
       - name: Verify persisted resume in actual Chat distribution
         run: >-
           python scripts/verify_canonical_chat_resume.py
