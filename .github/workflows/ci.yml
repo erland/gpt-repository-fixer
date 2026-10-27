@@ -73,6 +73,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install canonical engine test dependencies
+        run: python -m pip install pyyaml jsonschema
+
       - name: Download pinned canonical engine
         shell: bash
         run: |
