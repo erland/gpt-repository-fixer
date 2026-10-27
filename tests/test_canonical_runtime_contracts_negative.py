@@ -31,7 +31,7 @@ def setup(tmp_path, *, mutation=None):
         entries.append({"target": target, "archive": target + ".zip"})
     with zipfile.ZipFile(dist / "plugin.zip", "w") as z:
         z.writestr("plugin.json", json.dumps({"name": "repository-fixer"}))
-        z.writestr("runtime-contract.json", json.dumps({"runtime_id": "openai_plugin", "adapter": {"mcp_generated": False, "script_resources": {"mcp_required_for_resource_use": False}}}))
+        z.writestr("runtime-contract.json", json.dumps({"runtime_id": "openai_plugin", "capabilities": {"requirements": {"external_tools": {"level": "optional"}}}, "adapter": {"mcp_generated": False, "script_resources": {"mcp_required_for_resource_use": False}}}))
         z.writestr("skills/repository-analysis/SKILL.md",
                    "Statusfilen går före chattminne; failing blockerar.")
         z.writestr("skills/repository-remediation/SKILL.md",
@@ -137,9 +137,26 @@ def test_plugin_mandatory_mcp_is_rejected(tmp_path):
     root = setup(tmp_path)
     rewrite_plugin(root, "runtime-contract.json", json.dumps({
         "runtime_id": "openai_plugin",
+        "capabilities": {"requirements": {"external_tools": {"level": "optional"}}},
         "adapter": {"mcp_generated": True,
                     "script_resources": {"mcp_required_for_resource_use": True}}
     }))
     report = contracts.verify(root)
     assert report["status"] == "fail"
     assert any("mandatory MCP dependency detected" in e for e in report["errors"])
+
+
+def test_plugin_required_external_github_integration_is_rejected(tmp_path):
+    root = setup(tmp_path)
+    rewrite_plugin(root, "runtime-contract.json", json.dumps({
+        "runtime_id": "openai_plugin",
+        "capabilities": {"requirements": {"external_tools": {"level": "required"}}},
+        "adapter": {
+            "mcp_generated": False,
+            "script_resources": {"mcp_required_for_resource_use": False},
+        },
+    }))
+    report = contracts.verify(root)
+    assert report["status"] == "fail"
+    assert any("GitHub/external write integration must remain optional" in e
+               for e in report["errors"])
