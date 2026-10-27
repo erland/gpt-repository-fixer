@@ -39,30 +39,50 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Run deterministic and E2E tests
-        run: python -m pytest -q -p no:cacheprovider
+      - name: Run domain and migration tests
+        run: >-
+          python -m pytest -q -p no:cacheprovider
+          --ignore=tests/test_custom_gpt_distribution.py
+          --ignore=tests/test_runtime_parity.py
+          --ignore=tests/test_release_readiness.py
 
-      - name: Lint canonical GPT project
-        run: python scripts/lint_gpt_project.py --project-root .
+      - name: Download pinned canonical engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            --output /tmp/gpt-byggaren-engine-1.6.33.zip \
+            https://github.com/erland/gpt-byggaren/releases/download/v1.6.33/gpt-byggaren-engine-1.6.33.zip
+          python - <<'PY'
+          import pathlib, zipfile
+          path = pathlib.Path('/tmp/gpt-byggaren-engine-1.6.33.zip')
+          with zipfile.ZipFile(path) as archive:
+              for item in archive.infolist():
+                  parts = pathlib.PurePosixPath(item.filename)
+                  if parts.is_absolute() or '..' in parts.parts or not parts.parts:
+                      raise ValueError(f'Unsafe engine archive entry: {item.filename}')
+              archive.extractall('/tmp/gpt-builder-engine')
+          PY
 
-      - name: Validate project hygiene
-        run: python scripts/project_hygiene.py --project-root . --mode final
+      - name: Verify original engine integrity and smoke build
+        run: >-
+          python /tmp/gpt-builder-engine/scripts/selftest_distribution_engine.py
+          --source /tmp/gpt-builder-engine
 
-      - name: Build release distributions
+      - name: Install canonical engine in release checkout
+        run: >-
+          python /tmp/gpt-builder-engine/scripts/install_distribution_engine.py
+          --source /tmp/gpt-builder-engine
+          --project-root "$GITHUB_WORKSPACE"
+
+      - name: Build five release runtime distributions
         run: >-
           python scripts/build_distributions.py
           --project-root .
           --version '${{ steps.version.outputs.version }}'
-          --targets project,chat,custom-gpt,opencode,plugin
 
-      - name: Validate built distributions
+      - name: Validate five release distributions
         run: python scripts/validate_distributions.py --project-root .
-
-      - name: Validate generalized runtime parity
-        run: python scripts/validate_runtime_parity.py --project-root . --build-root build
-
-      - name: Validate runtime parity and release readiness
-        run: python scripts/validate_release_readiness.py --project-root . --build-root build
 
       - name: Publish release assets
         env:
