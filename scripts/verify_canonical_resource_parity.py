@@ -53,11 +53,13 @@ def verify(project: Path) -> dict:
                 original_behavior = (project / skill["source"]).read_text(encoding="utf-8")
                 # Require key source wording to survive compilation; layout/frontmatter may change.
                 for line in original_behavior.splitlines():
-                    if line.startswith("## ") and line not in compiled:
-                        errors.append(f"{target}: behavior heading lost in {sid}: {line}")
+                    if not line.strip():
+                        continue
+                    if line not in compiled:
+                        errors.append(f"{target}: canonical behavior line lost or altered in {sid}: {line[:120]}")
     result = {"status": "pass" if not errors else "fail",
               "resource_hash_checks": checked, "errors": errors,
-              "scope": "Plugin and Claude Skills reference/script/resource bytes and behavior headings"}
+              "scope": "Plugin and Claude Skills reference/script/resource bytes and all canonical behavior lines"}
     (project / "RESOURCE-PARITY-REPORT.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False))
