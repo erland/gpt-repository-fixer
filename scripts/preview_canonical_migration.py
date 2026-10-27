@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
+import zipfile
 import subprocess
 import sys
 from pathlib import Path
@@ -86,6 +88,49 @@ def main() -> int:
         if result.returncode:
             print(entry["stdout_tail"], entry["stderr_tail"], flush=True)
             break
+    # Verify all generated archives, not only the builder's exit status.
+    if len(report["checks"]) == 3 and all(item["exit_code"] == 0 for item in report["checks"]):
+        distribution_checks = []
+        dist = root / "dist"
+        version = "0.0.0-migration"
+        expected = {"chat", "plugin", "claude_project", "claude_skills", "opencode"}
+        for name in sorted(expected):
+            target = cfg["build_system"]["runtime_targets"][name]
+            filename = (target["filename_pattern"]
+                        .replace("<project-id>", cfg["project"]["id"])
+                        .replace("<version>", version))
+            archive = dist / filename
+            check = {"target": name, "archive": filename, "exists": archive.is_file()}
+            if archive.is_file():
+                with zipfile.ZipFile(archive) as zf:
+                    entries = set(zf.namelist())
+                    check["archive_integrity"] = zf.testzip() is None
+                    check["entry_count"] = len(entries)
+                    if name in {"plugin", "claude_skills"}:
+                        checks = {}
+                        for skill in cfg["skills"]["definitions"]:
+                            sid = skill["id"]
+                            prefix = f"skills/{sid}/"
+                            matches = [p for p in entries if p == prefix + "SKILL.md"]
+                            script_names = [p for p in entries if p.startswith(prefix + "scripts/")]
+                            reference_names = [p for p in entries if p.startswith(prefix + "references/")]
+                            checks[sid] = {
+                                "skill_markdown": bool(matches),
+                                "script_entries": len(script_names),
+                                "reference_entries": len(reference_names),
+                            }
+                        check["skills"] = checks
+                    else:
+                        check["has_manifest"] = "MANIFEST.json" in entries
+            distribution_checks.append(check)
+        report["distributions"] = distribution_checks
+        report["distribution_content_pass"] = all(
+            v["exists"] and v.get("archive_integrity") and v.get("entry_count", 0) > 0
+            and (all(s["skill_markdown"] and s["script_entries"] > 0 and s["reference_entries"] > 0
+                     for s in v["skills"].values()) if "skills" in v else v.get("has_manifest", False))
+            for v in distribution_checks
+        )
+        print("archive content: " + ("PASS" if report["distribution_content_pass"] else "FAIL"), flush=True)
     path = root / "MIGRATION-BUILD-REPORT.json"
     path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     return 0  # Preview is diagnostic; activation stays gated until all checks pass.
