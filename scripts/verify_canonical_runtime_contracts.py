@@ -41,6 +41,12 @@ def verify(root: Path) -> dict:
             adapter = contract.get("adapter") or {}
             if adapter.get("embedded_local_tools") is not False:
                 errors.append("claude_project: embedded local tools incorrectly assumed")
+        # GitHub writes are never assumed: host/integration support is conditional.
+        capability = contract.get("capabilities") or {}
+        requirements = capability.get("requirements") or {}
+        external = requirements.get("external_tools") or {}
+        if external.get("level") != "optional":
+            errors.append(f"{target}: external tools must remain optional")
         checked.append(target)
     path = archives.get("plugin")
     if path is None or not path.is_file():
