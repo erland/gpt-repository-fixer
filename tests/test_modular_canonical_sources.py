@@ -52,4 +52,12 @@ def test_every_original_behavior_block_is_preserved_in_modular_sources():
 def test_legacy_runtime_remains_the_active_configuration():
     config = (ROOT / "gpt-project.yaml").read_text(encoding="utf-8")
     assert "canonical: src/instructions/system.md" in config
-    assert "mode: modular_skills" not in config
+    import yaml
+    parsed = yaml.safe_load(config)
+    assert parsed["instructions"].get("mode") != "modular_skills"
+    assert parsed["instructions"]["migration_target"]["mode"] == "modular_skills"
+    assert parsed["instructions"]["migration_target"]["core"] == "canonical/core.md"
+    skills = parsed["skills"]["definitions"]
+    assert {skill["id"] for skill in skills} == {"repository-analysis", "repository-remediation", "repository-verification"}
+    for skill in skills:
+        assert (ROOT / skill["source"]).is_file()
