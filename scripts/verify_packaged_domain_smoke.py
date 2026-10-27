@@ -36,8 +36,8 @@ def check_archive(archive: Path):
         inventory = load_from_archive(archive, "repository-analysis", "repository_inventory.py", workspace)
         finding = load_from_archive(archive, "repository-analysis", "finding_model.py", workspace)
         result = inventory.detect_from_paths(["pom.xml", ".github/workflows/ci.yml"])
-        assert "Java" in result["languages"], result
-        assert "Maven" in result["build_tools"], result
+        assert "Java" in result["technologies"]["languages"], result
+        assert "Maven" in result["technologies"]["build_tools"], result
         assert not finding.validate_semantics({"classification": "must-fix", "evidence": [
             {"kind": "file", "path": "pom.xml"}]})
         assert "negative findings require concrete evidence" in finding.validate_semantics(
