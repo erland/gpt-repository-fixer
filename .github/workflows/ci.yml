@@ -130,6 +130,11 @@ jobs:
           python scripts/validate_canonical_parity_preview.py
           --project-root /tmp/repository-fixer-migration-preview
 
+      - name: Verify byte-level canonical Skill resource parity
+        run: >-
+          python scripts/verify_canonical_resource_parity.py
+          --project-root /tmp/repository-fixer-migration-preview
+
       - name: Upload isolated canonical build diagnostics
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
