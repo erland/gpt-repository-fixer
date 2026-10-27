@@ -156,6 +156,9 @@ jobs:
           python scripts/build_distributions.py --project-root "$GITHUB_WORKSPACE" --version 0.0.0-ci
           python scripts/validate_distributions.py --project-root "$GITHUB_WORKSPACE"
 
+      - name: Verify final distribution ZIP report renderers
+        run: python scripts/verify_packaged_report_templates.py --project-root .
+
       - name: Gate exact canonical delivery archives and checksums
         run: >-
           python scripts/verify_canonical_delivery.py
