@@ -49,18 +49,23 @@ def test_every_original_behavior_block_is_preserved_in_modular_sources():
     assert a in core and c in core and b in verification
 
 
-def test_legacy_runtime_remains_the_active_configuration():
-    config = (ROOT / "gpt-project.yaml").read_text(encoding="utf-8")
-    assert "canonical: src/instructions/system.md" in config
+def test_modular_skills_are_active_with_five_runtimes():
     import yaml
-    parsed = yaml.safe_load(config)
-    assert parsed["instructions"].get("mode") != "modular_skills"
-    assert parsed["instructions"]["migration_target"]["mode"] == "modular_skills"
-    assert parsed["instructions"]["migration_target"]["core"] == "canonical/core.md"
-    skills = parsed["skills"]["definitions"]
-    assert {skill["id"] for skill in skills} == {"repository-analysis", "repository-remediation", "repository-verification"}
-    for skill in skills:
-        assert (ROOT / skill["source"]).is_file()
+    cfg = yaml.safe_load((ROOT / "gpt-project.yaml").read_text(encoding="utf-8"))
+    assert cfg["instructions"]["mode"] == "modular_skills"
+    assert cfg["instructions"]["core"] == "canonical/core.md"
+    assert cfg["instructions"]["canonical"] == "canonical/core.md"
+    assert cfg["runtime"]["custom_gpt"]["enabled"] is False
+    assert set(cfg["build_system"]["targets"]) == {
+        "project", "chat", "plugin", "claude_project", "claude_skills", "opencode"
+    }
+    assert set(cfg["runtime_parity"]["registered_runtimes"]) == {
+        "chatgpt_chat", "openai_plugin", "claude_project", "claude_skills", "opencode"
+    }
+    assert {skill["id"] for skill in cfg["skills"]["definitions"]} == {
+        "repository-analysis", "repository-remediation", "repository-verification"
+    }
+
 
 
 def test_explicit_skill_resources_exist_and_are_scoped():
