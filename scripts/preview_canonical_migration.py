@@ -133,7 +133,10 @@ def main() -> int:
         print("archive content: " + ("PASS" if report["distribution_content_pass"] else "FAIL"), flush=True)
     path = root / "MIGRATION-BUILD-REPORT.json"
     path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    return 0  # Preview is diagnostic; activation stays gated until all checks pass.
+    passed = (len(report["checks"]) == 3
+              and all(item["exit_code"] == 0 for item in report["checks"])
+              and report.get("distribution_content_pass") is True)
+    return 0 if passed else 1  # Fail CI when canonical install/build/validation/content fails.
 
 
 if __name__ == "__main__":
